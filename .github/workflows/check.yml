@@ -15,18 +15,22 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+
       - run: echo "node_version=$(cat .github/nodejs.version)" >> $GITHUB_ENV
-      - name: "use node ${{ env.node_version }}"
+
+      - name: Use Node.js ${{ env.node_version }}
         uses: actions/setup-node@v3
         with:
           node-version: "${{ env.node_version }}"
 
-      - name: "Install pnpm & dependencies"
+      - name: Setup pnpm
         uses: pnpm/action-setup@v4
         with:
-          run_install: |
-            - recursive: true
-            - args: [--frozen-lockfile]
+          version: 8.15.4 # ✅ Replace with your desired pnpm version
+          run_install: false
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
 
       - name: Lint check
         run: pnpm run lint
