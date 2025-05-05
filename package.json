@@ -10,8 +10,7 @@
     "lint": "next lint",
     "lint:fix": "next lint --fix",
     "prettier": "prettier --check \"**/*.{js,jsx,ts,tsx}\"",
-    "prettier:fix": "prettier --write \"**/*.{js,jsx,ts,tsx}\"",
-    "prepare": "husky install"
+    "prettier:fix": "prettier --write \"**/*.{js,jsx,ts,tsx}\""
   },
   "dependencies": {
     "@hookform/resolvers": "^5.0.1",
@@ -56,7 +55,6 @@
     "eslint-config-prettier": "^10.1.2",
     "eslint-plugin-check-file": "^3.2.0",
     "eslint-plugin-import": "^2.31.0",
-    "husky": "^9.1.7",
     "prettier": "^3.5.3",
     "prettier-plugin-tailwindcss": "^0.6.11",
     "tailwindcss": "^4",
@@ -64,5 +62,8 @@
     "typescript": "^5",
     "typescript-eslint": "^8.31.1"
   },
-  "packageManager": "pnpm@8.15.4"
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "packageManager": "pnpm@10.6.4"
 }
