@@ -19,7 +19,6 @@ export default async function DocumentDetailPage({
     <div className="container mx-auto py-8">
       <h1 className="mb-4 text-2xl font-bold">{resume.file_name}</h1>
       <div className="rounded-lg bg-white p-6 shadow-md">
-        {/* Add your full document viewing experience here */}
         <iframe
           src={resume.storage_url}
           className="h-[800px] w-full"

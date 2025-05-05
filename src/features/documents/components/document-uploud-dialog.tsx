@@ -11,7 +11,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog"
 
-import ResumeForm from "./forms/resume-form"
+import UploudResumeForm from "./forms/uploud-resume-form"
 
 export function DocumentUploadDialog() {
   const [open, setOpen] = useState(false)
@@ -31,7 +31,7 @@ export function DocumentUploadDialog() {
         <DialogHeader>
           <DialogTitle>Upload your file below</DialogTitle>
         </DialogHeader>
-        <ResumeForm onSuccess={handleSuccess} />
+        <UploudResumeForm onSuccess={handleSuccess} />
       </DialogContent>
     </Dialog>
   )

@@ -9,6 +9,7 @@ const ACCEPTED_FILE_TYPES = [
 ]
 
 export const resumeSchema = z.object({
+  id: z.string().uuid().optional(),
   file: z
     .instanceof(File)
     .refine((file) => file.size <= MAX_FILE_SIZE, {
@@ -21,9 +22,12 @@ export const resumeSchema = z.object({
     .string()
     .min(3, { message: "Title must be at least 3 characters long" }),
   description: z.string().optional(),
-
-  id: z.string().uuid({ message: "Invalid resume ID" }).optional(),
 })
+
+export type ResumeSchema = z.infer<typeof resumeSchema>
+
+export const UpdateResumeSchema = resumeSchema.omit({ id: true, file: true })
+export const UploudResumeSchema = resumeSchema.omit({ id: true })
 
 // export const resumeMetadataSchema = z.object({
 //   file_name: z

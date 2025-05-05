@@ -21,13 +21,15 @@ export default function DeleteButton({ fileName }: { fileName: string }) {
   }
 
   return (
-    <Button
-      variant="destructive"
-      onClick={handleDelete}
-      disabled={isPending}
-      className="w-full cursor-pointer"
-    >
-      {isPending ? "Deleting..." : "Delete"}
-    </Button>
+    <form action={handleDelete} className="w-full">
+      <Button
+        disabled={isPending}
+        variant={"destructive"}
+        type="submit"
+        className="w-full cursor-pointer"
+      >
+        {isPending ? "Deleting..." : "Delete"}
+      </Button>
+    </form>
   )
 }

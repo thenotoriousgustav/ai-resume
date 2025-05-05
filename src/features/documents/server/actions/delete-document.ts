@@ -14,7 +14,6 @@ export default async function deleteDocument(
 
     const user = await getCurrentUser()
 
-    //! Delete the file from storage
     const filePath = `${user.id}/${fileName}`
 
     const { error: storageError } = await supabase.storage
@@ -29,7 +28,6 @@ export default async function deleteDocument(
       }
     }
 
-    //! Delete the file metadata from the database
     const { error: dbError } = await supabase
       .from("resumes")
       .delete()

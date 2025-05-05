@@ -19,16 +19,16 @@ import {
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 
-import { resumeSchema } from "../../schemas/resume-schema"
+import { UploudResumeSchema } from "../../schemas/resume-schema"
 import uploadResume from "../../server/actions/uploud-resume"
 
 interface ResumeInputProps {
   onSuccess?: () => void
 }
 
-export default function ResumeForm({ onSuccess }: ResumeInputProps) {
-  const form = useForm<z.infer<typeof resumeSchema>>({
-    resolver: zodResolver(resumeSchema),
+export default function UploudResumeForm({ onSuccess }: ResumeInputProps) {
+  const form = useForm<z.infer<typeof UploudResumeSchema>>({
+    resolver: zodResolver(UploudResumeSchema),
     defaultValues: {
       file: new File([], ""),
       title: "",
@@ -51,7 +51,7 @@ export default function ResumeForm({ onSuccess }: ResumeInputProps) {
     }
   }
 
-  async function onSubmit(values: z.infer<typeof resumeSchema>) {
+  async function onSubmit(values: z.infer<typeof UploudResumeSchema>) {
     startTransition(async () => {
       const data = await uploadResume(values)
 

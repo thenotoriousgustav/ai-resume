@@ -3,23 +3,13 @@
 import "react-pdf/dist/esm/Page/AnnotationLayer.css"
 import "react-pdf/dist/esm/Page/TextLayer.css"
 
-import { EllipsisIcon } from "lucide-react"
 import Link from "next/link"
 import { Document, Page, pdfjs } from "react-pdf"
 
-import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardFooter, CardTitle } from "@/components/ui/card"
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
 import { Tables } from "@/types/database.types"
 
-import DeleteButton from "./delete-button"
-
-// import deleteDocument from "../server/actions/delete-document"
+import DocumentDropdown from "./document-dropdown"
 
 pdfjs.GlobalWorkerOptions.workerSrc = new URL(
   "pdfjs-dist/build/pdf.worker.min.mjs",
@@ -56,24 +46,10 @@ export default function DocumentCard({ resume }: { resume: Resume }) {
         <CardTitle className="max-w-[180px] truncate text-sm">
           {resume.title}
         </CardTitle>
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button
-              size="icon"
-              variant="ghost"
-              className="rounded-full shadow-none"
-              aria-label="Open edit menu"
-            >
-              <EllipsisIcon size={16} aria-hidden="true" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent>
-            <DropdownMenuItem asChild>
-              <DeleteButton fileName={resume.file_name} />
-            </DropdownMenuItem>
-            <DropdownMenuItem>Option 2</DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
+        <DocumentDropdown
+          resumeId={resume.id}
+          resumeFileName={resume.file_name}
+        />
       </CardFooter>
     </Card>
   )

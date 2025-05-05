@@ -8,19 +8,17 @@ import { uploadFileStorage } from "@/server/actions/uploud-file-storage"
 import { ActionResponse } from "@/types/action-response"
 import { createClient } from "@/utils/supabase/server"
 
-import { resumeSchema } from "../../schemas/resume-schema"
+import { UploudResumeSchema } from "../../schemas/resume-schema"
 
 export default async function uploadResume(
-  values: z.infer<typeof resumeSchema>
+  values: z.infer<typeof UploudResumeSchema>
 ): Promise<ActionResponse> {
   try {
     const supabase = await createClient()
 
-    //! get current user
     const user = await getCurrentUser()
 
-    //! Validate the input data
-    const valuesResult = resumeSchema.safeParse(values)
+    const valuesResult = UploudResumeSchema.safeParse(values)
 
     if (!valuesResult.success) {
       console.log("Invalid input data:", valuesResult.error.issues)
@@ -39,7 +37,6 @@ export default async function uploadResume(
     const fileName = `${title}-${timestamp}.${fileExtension}`
     const storagePath = `${user.id}/${fileName}`
 
-    //! Upload file to storage
     const { storageUrl } = await uploadFileStorage(file, storagePath)
 
     if (!storageUrl) {
@@ -49,7 +46,6 @@ export default async function uploadResume(
       }
     }
 
-    //! Store metadata in database
     const { error: dbError } = await supabase.from("resumes").insert([
       {
         user_id: user.id,
