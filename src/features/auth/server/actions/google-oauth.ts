@@ -2,6 +2,7 @@
 
 import { redirect } from "next/navigation"
 
+import { env } from "@/config/env"
 import { createClient } from "@/utils/supabase/server"
 
 export default async function googleOAuth() {
@@ -13,7 +14,7 @@ export default async function googleOAuth() {
   } = await supabase.auth.signInWithOAuth({
     provider: "google",
     options: {
-      redirectTo: `${process.env.NEXT_PUBLIC_BASE_URL}/auth/callback`,
+      redirectTo: `${env.NEXT_PUBLIC_BASE_URL}/auth/callback`,
     },
   })
 
