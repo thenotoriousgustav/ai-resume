@@ -1,15 +1,15 @@
 "use server"
 
 import { revalidatePath } from "next/cache"
-import { headers } from "next/headers"
 import { redirect } from "next/navigation"
 
+import { env } from "@/config/env"
 import { createClient } from "@/utils/supabase/server"
 
 export default async function googleOAuth() {
   const supabase = await createClient()
 
-  const origin = (await headers()).get("origin")
+  // const origin = (await headers()).get("origin")
 
   const {
     data: { url },
@@ -17,7 +17,7 @@ export default async function googleOAuth() {
   } = await supabase.auth.signInWithOAuth({
     provider: "google",
     options: {
-      redirectTo: `${origin}/auth/callback`,
+      redirectTo: `${env.NEXT_PUBLIC_BASE_URL}/auth/callback`,
     },
   })
 
