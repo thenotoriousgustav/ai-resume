@@ -1,5 +1,6 @@
 "use server"
 
+import { revalidatePath } from "next/cache"
 import { redirect } from "next/navigation"
 
 import { env } from "@/config/env"
@@ -14,7 +15,7 @@ export default async function googleOAuth() {
   } = await supabase.auth.signInWithOAuth({
     provider: "google",
     options: {
-      redirectTo: `${env.NEXT_PUBLIC_BASE_URL}/auth/callback`,
+      redirectTo: `${env.NEXT_PUBLIC_BASE_URL}/api/auth/callback`,
     },
   })
 
@@ -23,6 +24,7 @@ export default async function googleOAuth() {
     throw new Error("Failed to initiate OAuth.")
   }
 
+  revalidatePath("/", "layout")
   if (url) {
     redirect(url)
   }
