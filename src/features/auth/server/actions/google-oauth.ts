@@ -1,13 +1,16 @@
 "use server"
 
-import { revalidatePath } from "next/cache"
+import { headers } from "next/headers"
 import { redirect } from "next/navigation"
 
-import { env } from "@/config/env"
 import { createClient } from "@/utils/supabase/server"
 
 export default async function googleOAuth() {
   const supabase = await createClient()
+  const headersList = await headers()
+  const host = headersList.get("x-forwarded-host") || headersList.get("host")
+  const protocol = host?.includes("localhost") ? "http" : "https"
+  const baseUrl = `${protocol}://${host}`
 
   const {
     data: { url },
@@ -15,7 +18,7 @@ export default async function googleOAuth() {
   } = await supabase.auth.signInWithOAuth({
     provider: "google",
     options: {
-      redirectTo: `${env.NEXT_PUBLIC_BASE_URL}/api/auth/callback`,
+      redirectTo: `${baseUrl}/api/auth/callback`,
     },
   })
 
@@ -24,7 +27,6 @@ export default async function googleOAuth() {
     throw new Error("Failed to initiate OAuth.")
   }
 
-  revalidatePath("/", "layout")
   if (url) {
     redirect(url)
   }
