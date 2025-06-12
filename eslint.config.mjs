@@ -1,8 +1,9 @@
+import * as fs from "fs"
+
 import eslintPluginNext from "@next/eslint-plugin-next"
+import eslintPluginCheckFile from "eslint-plugin-check-file"
 import eslintPluginImport from "eslint-plugin-import"
 import typescriptEslint from "typescript-eslint"
-import eslintPluginCheckFile from "eslint-plugin-check-file"
-import * as fs from "fs"
 
 const eslintIgnore = [
   ".git/",

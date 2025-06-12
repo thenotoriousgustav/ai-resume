@@ -33,7 +33,12 @@ export default function DocumentDropdown({
       <DropdownMenuContent>
         <DropdownMenuItem asChild>
           <Button asChild variant={"link"} className="w-full cursor-pointer">
-            <Link href={`/documents/${resumeId}`}>Edit</Link>
+            <Link href={`/analyze/${resumeId}`}>Analyze</Link>
+          </Button>
+        </DropdownMenuItem>
+        <DropdownMenuItem asChild>
+          <Button asChild variant={"link"} className="w-full cursor-pointer">
+            <Link href={`/resume-builder/${resumeId}`}>Edit</Link>
           </Button>
         </DropdownMenuItem>
         <DropdownMenuItem asChild>

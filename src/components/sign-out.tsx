@@ -1,4 +1,5 @@
 import type { VariantProps } from "class-variance-authority"
+import { LogOut } from "lucide-react"
 import React from "react"
 
 import { cn } from "@/lib/utils"
@@ -22,8 +23,9 @@ export default function SignOut({
       <Button
         type="submit"
         variant={variant}
-        className={cn("cursor-pointer", className)}
+        className={cn("m-0 cursor-pointer p-0", className)}
       >
+        <LogOut />
         {children}
       </Button>
     </form>

@@ -1,0 +1,47 @@
+"use server"
+
+import { revalidatePath } from "next/cache"
+import { redirect } from "next/navigation"
+
+import { createClient } from "@/utils/supabase/server"
+
+export async function deleteJob(input: { id: string }) {
+  const supabase = await createClient()
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+
+  if (!user) {
+    redirect("/login")
+  }
+
+  try {
+    const { error } = await supabase
+      .from("job_applications")
+      .delete()
+      .eq("id", input.id)
+      .eq("user_id", user.id)
+
+    if (error) {
+      console.error("Error deleting job:", error)
+      return {
+        data: null,
+        error: `Failed to delete job: ${error.message}`,
+      }
+    }
+
+    revalidatePath("/job-tracker")
+
+    return {
+      data: null,
+      error: null,
+    }
+  } catch (err) {
+    return {
+      data: null,
+      error:
+        err instanceof Error ? err.message : "An unexpected error occurred",
+    }
+  }
+}

@@ -40,14 +40,10 @@ export default function UploudResumeForm({ onSuccess }: ResumeInputProps) {
     if (file) {
       const fileName = file.name.split(".").shift() || file.name
 
-      form.setValue("file", file)
-
       const currentTitle = form.getValues("title")
       if (!currentTitle) {
         form.setValue("title", fileName)
       }
-    } else {
-      form.setValue("file", new File([], ""))
     }
   }
 
@@ -79,7 +75,7 @@ export default function UploudResumeForm({ onSuccess }: ResumeInputProps) {
               <FormControl>
                 <Input
                   type="file"
-                  accept={".pdf,.doc,.docx"}
+                  accept=".pdf"
                   onChange={(event) => {
                     const file = event.target.files
                       ? event.target.files[0]

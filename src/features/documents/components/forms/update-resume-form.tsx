@@ -17,7 +17,7 @@ import {
 } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
-import { Tables } from "@/types/database.types"
+import { Tables } from "@/types/supabase-types"
 
 import { UpdateResumeSchema } from "../../schemas/resume-schema"
 import updateResume from "../../server/actions/update-resume"

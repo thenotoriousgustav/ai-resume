@@ -1,11 +1,11 @@
 "use client"
 
+import { UserMetadata } from "@supabase/supabase-js"
 import {
   BadgeCheck,
   Bell,
   ChevronsUpDown,
   CreditCard,
-  LogOut,
   Sparkles,
 } from "lucide-react"
 
@@ -28,15 +28,7 @@ import {
 
 import SignOut from "../sign-out"
 
-export function NavUser({
-  user,
-}: {
-  user: {
-    name: string
-    email: string
-    avatar: string
-  }
-}) {
+export function NavUser({ user }: { user: UserMetadata }) {
   const { isMobile } = useSidebar()
 
   return (
@@ -49,12 +41,13 @@ export function NavUser({
               className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
             >
               <Avatar className="h-8 w-8 rounded-lg">
-                <AvatarImage src={user?.avatar} alt={user.name} />
-                <AvatarFallback className="rounded-lg">CN</AvatarFallback>
+                <AvatarImage src={user.avatar_url} alt={user.name} />
+                <AvatarFallback className="rounded-lg">
+                  {user.name}
+                </AvatarFallback>
               </Avatar>
               <div className="grid flex-1 text-left text-sm leading-tight">
                 <span className="truncate font-semibold">{user.name}</span>
-                <span className="truncate text-xs">{user.email}</span>
               </div>
               <ChevronsUpDown className="ml-auto size-4" />
             </SidebarMenuButton>
@@ -68,8 +61,10 @@ export function NavUser({
             <DropdownMenuLabel className="p-0 font-normal">
               <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
                 <Avatar className="h-8 w-8 rounded-lg">
-                  <AvatarImage src={user.avatar} alt={user.name} />
-                  <AvatarFallback className="rounded-lg">CN</AvatarFallback>
+                  <AvatarImage src={user.avatar_url} alt={user.name} />
+                  <AvatarFallback className="rounded-lg">
+                    {user.name}
+                  </AvatarFallback>
                 </Avatar>
                 <div className="grid flex-1 text-left text-sm leading-tight">
                   <span className="truncate font-semibold">{user.name}</span>
@@ -100,10 +95,12 @@ export function NavUser({
               </DropdownMenuItem>
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
-            <DropdownMenuItem className="p-0">
-              <SignOut variant={"ghost"} className="m-0 w-full justify-start">
-                <LogOut />
-                Sign out
+            <DropdownMenuItem>
+              <SignOut
+                variant={"link"}
+                className="w-full justify-start hover:bg-red-50"
+              >
+                Sign Out
               </SignOut>
             </DropdownMenuItem>
           </DropdownMenuContent>

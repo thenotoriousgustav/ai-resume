@@ -10,6 +10,8 @@ import { createClient } from "@/utils/supabase/server"
 
 import { UploudResumeSchema } from "../../schemas/resume-schema"
 
+import pdfParser from "./pdf-parser"
+
 export default async function uploadResume(
   values: z.infer<typeof UploudResumeSchema>
 ): Promise<ActionResponse> {
@@ -46,6 +48,8 @@ export default async function uploadResume(
       }
     }
 
+    const parsedText = await pdfParser(storageUrl)
+
     const { error: dbError } = await supabase.from("resumes").insert([
       {
         user_id: user.id,
@@ -56,7 +60,7 @@ export default async function uploadResume(
         storage_url: storageUrl,
         title: title,
         description: description,
-        extracted_text: null,
+        extracted_text: parsedText,
       },
     ])
 
