@@ -148,6 +148,7 @@ export default function getColumnsJob({
         return (
           <Link
             href={`/job-tracker/${props.row.original.id}`}
+            prefetch={false}
             className="block font-semibold hover:underline"
           >
             {props.row.original.position}

@@ -1,10 +1,12 @@
 "use server"
 
+import { cache } from "react"
+
 import { JobApplication } from "@/types/database"
 import { type ResultAsync, tryCatch } from "@/types/result"
 import { createClient } from "@/utils/supabase/server"
 
-export default async function getJobApplication(
+const getJobApplication = cache(async function getJobApplication(
   jobApplicationId: string
 ): ResultAsync<JobApplication, Error> {
   return tryCatch(async () => {
@@ -33,4 +35,6 @@ export default async function getJobApplication(
 
     return data
   })
-}
+})
+
+export default getJobApplication
