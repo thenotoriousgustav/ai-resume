@@ -1,43 +1,31 @@
 import { NextResponse } from "next/server"
 
+// The client you created from the Server-Side Auth instructions
 import { createClient } from "@/utils/supabase/server"
 
 export async function GET(request: Request) {
   const { searchParams, origin } = new URL(request.url)
   const code = searchParams.get("code")
-  const next = searchParams.get("next") ?? "/dashboard" // Redirect ke dashboard setelah login
-
-  console.log("Callback received:", { code: !!code, origin, next })
+  // if "next" is in param, use it as the redirect URL
+  const next = searchParams.get("next") ?? "/"
 
   if (code) {
     const supabase = await createClient()
-
-    try {
-      const { data, error } = await supabase.auth.exchangeCodeForSession(code)
-
-      if (error) {
-        console.error("Auth exchange error:", error)
-        return NextResponse.redirect(
-          `${origin}/auth?error=${encodeURIComponent(error.message)}`
-        )
+    const { error } = await supabase.auth.exchangeCodeForSession(code)
+    if (!error) {
+      const forwardedHost = request.headers.get("x-forwarded-host") // original origin before load balancer
+      const isLocalEnv = process.env.NODE_ENV === "development"
+      if (isLocalEnv) {
+        // we can be sure that there is no load balancer in between, so no need to watch for X-Forwarded-Host
+        return NextResponse.redirect(`${origin}${next}`)
+      } else if (forwardedHost) {
+        return NextResponse.redirect(`https://${forwardedHost}${next}`)
+      } else {
+        return NextResponse.redirect(`${origin}${next}`)
       }
-
-      if (data?.user) {
-        console.log("Auth successful for user:", data.user.id)
-
-        // Buat clean redirect URL tanpa code parameter
-        const redirectUrl = new URL(next, origin)
-        redirectUrl.searchParams.delete("code")
-        redirectUrl.searchParams.delete("next")
-
-        return NextResponse.redirect(redirectUrl.toString())
-      }
-    } catch (error) {
-      console.error("Unexpected error during auth exchange:", error)
-      return NextResponse.redirect(`${origin}/auth?error=auth_failed`)
     }
   }
 
-  console.log("No code parameter found, redirecting to auth error")
-  return NextResponse.redirect(`${origin}/auth?error=missing_code`)
+  // return the user to an error page with instructions
+  return NextResponse.redirect(`${origin}/auth/auth-code-error`)
 }
