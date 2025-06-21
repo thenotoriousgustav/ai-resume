@@ -27,7 +27,7 @@ export function NavProjects({
         {projects.map((item) => (
           <SidebarMenuItem key={item.name}>
             <SidebarMenuButton asChild tooltip={item.name}>
-              <Link href={item.url}>
+              <Link href={item.url} prefetch={false}>
                 <item.icon />
                 <span>{item.name}</span>
               </Link>
