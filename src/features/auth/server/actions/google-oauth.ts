@@ -17,6 +17,10 @@ export async function googleOAuthWithTryCatch() {
       provider: "google",
       options: {
         redirectTo: `${env.NEXT_PUBLIC_BASE_URL}/auth/callback`,
+        queryParams: {
+          access_type: "offline",
+          prompt: "consent",
+        },
       },
     })
 
@@ -33,7 +37,7 @@ export async function googleOAuthWithTryCatch() {
 
   if (error) {
     console.error("OAuth error:", error.message)
-    redirect(`/auth/error?message=${encodeURIComponent(error.message)}`)
+    redirect(`/auth?error=${encodeURIComponent(error.message)}`)
   }
 
   redirect(url)
