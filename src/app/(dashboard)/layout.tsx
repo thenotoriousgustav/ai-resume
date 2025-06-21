@@ -1,11 +1,12 @@
 import type { Metadata } from "next"
 import { cookies } from "next/headers"
+import { redirect } from "next/navigation"
 import React from "react"
 
 import { AppSidebar } from "@/components/sidebar/app-sidebar"
 import { HeaderSidebar } from "@/components/sidebar/header-sidebar"
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar"
-import { getUserMetadata } from "@/server/data-access/get-user-metadata"
+import { getUserMetadata } from "@/server/queries/get-user-metadata"
 
 export const metadata: Metadata = {
   title: "Create Next App",
@@ -22,7 +23,15 @@ export default async function DashboardLayout({
   const cookieStore = await cookies()
   const defaultOpen = cookieStore.get("sidebar_state")?.value === "true"
 
-  const user = await getUserMetadata()
+  const [user, userError] = await getUserMetadata()
+
+  if (userError) {
+    redirect("/auth")
+  }
+  if (!user) {
+    console.error("User not found")
+    return <div>User not found</div>
+  }
 
   return (
     <SidebarProvider defaultOpen={defaultOpen}>

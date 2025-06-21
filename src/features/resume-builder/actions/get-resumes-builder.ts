@@ -6,7 +6,11 @@ import { createClient } from "@/utils/supabase/server"
 
 export default async function getResumesBuilder(): Promise<DBResumeBuilder[]> {
   const supabase = await createClient()
-  const user = await getCurrentUser()
+  const [user, userError] = await getCurrentUser()
+
+  if (userError) {
+    throw userError
+  }
 
   const { data, error } = await supabase
     .from("resumes_builder")
@@ -18,5 +22,5 @@ export default async function getResumesBuilder(): Promise<DBResumeBuilder[]> {
     console.error("Error fetching resumes:", error)
     throw new Error(`Failed to fetch resumes: ${error.message}`)
   }
-  return data
+  return data || []
 }

@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button"
 import { getCurrentUser } from "@/server/actions/get-current-user"
 
 export default async function NavbarSection() {
-  const user = await getCurrentUser()
+  const [user, _] = await getCurrentUser()
 
   return (
     <header className="bg-background/95 supports-[backdrop-filter]:bg-background/60 sticky top-0 z-50 flex w-full items-center justify-center border-b backdrop-blur">

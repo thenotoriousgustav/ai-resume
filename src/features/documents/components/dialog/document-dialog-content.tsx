@@ -5,7 +5,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog"
-import getResume from "@/server/data-access/get-resume"
+import getResume from "@/server/queries/get-resume"
 
 import PdfToolbar from "./pdf-toolbar"
 import PdfViewer from "./pdf-viewer"
@@ -16,7 +16,11 @@ export default async function DocumentDialogContent({
 }: {
   resumeId: string
 }) {
-  const resume = await getResume(resumeId)
+  const [resume, error] = await getResume(resumeId)
+
+  if (error) {
+    return null
+  }
 
   return (
     <DialogContent className="w-full max-w-[95vw] lg:max-w-[90vw] xl:max-w-[85vw]">

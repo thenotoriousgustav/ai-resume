@@ -4,27 +4,27 @@ import { revalidatePath } from "next/cache"
 import { z } from "zod"
 
 import { getCurrentUser } from "@/server/actions/get-current-user"
-import { ActionResponse } from "@/types/action-response"
+import { type ResultAsync, tryCatch } from "@/types/result"
 import { createClient } from "@/utils/supabase/server"
 
 import { jobApplicationSchema } from "../../schemas/job-application-schema"
 
 export default async function addJobApplication(
   values: z.infer<typeof jobApplicationSchema>
-): Promise<ActionResponse> {
-  try {
+): ResultAsync<void, Error> {
+  return tryCatch(async () => {
     const supabase = await createClient()
-    const user = await getCurrentUser()
+    const [user, userError] = await getCurrentUser()
+
+    if (userError) {
+      throw userError
+    }
 
     const valuesResult = jobApplicationSchema.safeParse(values)
 
     if (!valuesResult.success) {
       console.log("Invalid input data:", valuesResult.error.issues)
-      return {
-        status: "error",
-        message: "Invalid input data.",
-        error: valuesResult.error.issues[0].message,
-      }
+      throw new Error(valuesResult.error.issues[0].message)
     }
 
     const {
@@ -57,26 +57,9 @@ export default async function addJobApplication(
 
     if (dbError) {
       console.error("Error storing job application:", dbError.message)
-      return {
-        status: "error",
-        message: "Failed to save job application. Please try again.",
-        error: dbError.message,
-      }
+      throw new Error("Failed to save job application. Please try again.")
     }
 
     revalidatePath("/job-tracker")
-
-    return {
-      status: "success",
-      message: "Job application added successfully!",
-    }
-  } catch (error) {
-    console.error("Unexpected error during job application creation:", error)
-    return {
-      status: "error",
-      message: "An unexpected error occurred. Please try again later.",
-      error:
-        error instanceof Error ? error.message : "An unexpected error occurred",
-    }
-  }
+  })
 }

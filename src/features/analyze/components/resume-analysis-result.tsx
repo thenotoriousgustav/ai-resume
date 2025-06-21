@@ -27,6 +27,22 @@ export default function ResumeAnalysisResult({
   // If analysis is not available yet
   if (!analysis) return null
 
+  // Safely extract data with fallbacks
+  const safeAnalysis = {
+    overall_score: analysis.overall_score || 0,
+    overall_impression: analysis.overall_impression || "No analysis available",
+    sections: analysis.sections || [],
+    keywords: {
+      job_titles: analysis.keywords?.job_titles || [],
+      skills: analysis.keywords?.skills || [],
+      career_paths: analysis.keywords?.career_paths || [],
+      professional_summaries: analysis.keywords?.professional_summaries || [],
+      additional_keywords: analysis.keywords?.additional_keywords || [],
+    },
+    career_recommendation:
+      analysis.career_recommendation || "No recommendation available",
+  }
+
   // Get score color based on value
   const getScoreColor = (score: number) => {
     if (score >= 90) return "text-green-600"
@@ -68,160 +84,190 @@ export default function ResumeAnalysisResult({
         <div className="flex items-center justify-between">
           <h2 className="text-xl font-bold">Overall Score</h2>
           <div
-            className={`text-3xl font-bold ${getScoreColor(analysis.overall_score)}`}
+            className={`text-3xl font-bold ${getScoreColor(safeAnalysis.overall_score)}`}
           >
-            {analysis.overall_score}%
+            {safeAnalysis.overall_score}%
           </div>
         </div>
-        <p className="mt-2 text-gray-600">{analysis.overall_impression}</p>
+        <p className="mt-2 text-gray-600">{safeAnalysis.overall_impression}</p>
       </div>
 
       {/* Section Analysis */}
       <div className="rounded-lg border bg-white p-6 shadow-sm">
         <h2 className="mb-4 text-xl font-bold">Section Analysis</h2>
 
-        <div className="space-y-4">
-          {analysis.sections.map((section, index: number) => (
-            <div key={index} className="rounded-lg border p-4">
-              <div className="mb-3 flex items-center justify-between">
-                <div className="flex items-center">
-                  <div className="mr-3 text-gray-600">
-                    {getSectionIcon(section.name)}
+        {safeAnalysis.sections.length === 0 ? (
+          <div className="rounded-lg border border-gray-200 bg-gray-50 p-4 text-center">
+            <p className="text-gray-500">No section analysis available.</p>
+          </div>
+        ) : (
+          <div className="space-y-4">
+            {safeAnalysis.sections.map((section, index: number) => (
+              <div key={index} className="rounded-lg border p-4">
+                <div className="mb-3 flex items-center justify-between">
+                  <div className="flex items-center">
+                    <div className="mr-3 text-gray-600">
+                      {getSectionIcon(section.name)}
+                    </div>
+                    <h3 className="text-lg font-semibold">{section.name}</h3>
                   </div>
-                  <h3 className="text-lg font-semibold">{section.name}</h3>
+                  <Badge className={getScoreBgColor(section.score)}>
+                    {section.score}%
+                  </Badge>
                 </div>
-                <Badge className={getScoreBgColor(section.score)}>
-                  {section.score}%
-                </Badge>
-              </div>
 
-              <div className="mb-4">
-                <h4 className="mb-2 font-medium text-gray-700">Analysis</h4>
-                <p className="text-gray-600">{section.analysis}</p>
-              </div>
+                <div className="mb-4">
+                  <h4 className="mb-2 font-medium text-gray-700">Analysis</h4>
+                  <p className="text-gray-600">{section.analysis}</p>
+                </div>
 
-              <div className="mb-4">
-                <h4 className="mb-2 font-medium text-gray-700">
-                  Action Points
-                </h4>
-                <ul className="list-inside list-disc space-y-1">
-                  {section.action_points.map((point, pointIndex) => (
-                    <li key={pointIndex} className="text-sm text-gray-600">
-                      {point}
-                    </li>
-                  ))}
-                </ul>
-              </div>
+                <div className="mb-4">
+                  <h4 className="mb-2 font-medium text-gray-700">
+                    Action Points
+                  </h4>
+                  <ul className="list-inside list-disc space-y-1">
+                    {section.action_points.map((point, pointIndex) => (
+                      <li key={pointIndex} className="text-sm text-gray-600">
+                        {point}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
 
-              <div className="rounded-md bg-blue-50 p-3">
-                <h4 className="mb-1 font-medium text-blue-800">
-                  Why It's Important
-                </h4>
-                <p className="text-sm text-blue-700">{section.importance}</p>
+                <div className="rounded-md bg-blue-50 p-3">
+                  <h4 className="mb-1 font-medium text-blue-800">
+                    Why It's Important
+                  </h4>
+                  <p className="text-sm text-blue-700">{section.importance}</p>
+                </div>
               </div>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        )}
       </div>
 
       {/* Keywords */}
       <div className="rounded-lg border bg-white p-6 shadow-sm">
         <h2 className="mb-4 text-xl font-bold">Keywords</h2>
 
-        <div className="space-y-4">
-          <div>
-            <h3 className="mb-2 text-sm font-medium text-gray-600">
-              Job Titles
-            </h3>
-            <div className="flex flex-wrap gap-2">
-              {analysis.keywords.job_titles.map(
-                (keyword: string, index: number) => (
-                  <Badge
-                    key={index}
-                    variant="outline"
-                    className="border-blue-200 bg-blue-50 text-blue-700"
-                  >
-                    {keyword}
-                  </Badge>
-                )
-              )}
-            </div>
+        {safeAnalysis.keywords.job_titles.length === 0 &&
+        safeAnalysis.keywords.skills.length === 0 &&
+        safeAnalysis.keywords.career_paths.length === 0 &&
+        safeAnalysis.keywords.professional_summaries.length === 0 &&
+        safeAnalysis.keywords.additional_keywords.length === 0 ? (
+          <div className="rounded-lg border border-gray-200 bg-gray-50 p-4 text-center">
+            <p className="text-gray-500">
+              No keywords available in this analysis.
+            </p>
           </div>
+        ) : (
+          <div className="space-y-4">
+            {safeAnalysis.keywords.job_titles.length > 0 && (
+              <div>
+                <h3 className="mb-2 text-sm font-medium text-gray-600">
+                  Job Titles
+                </h3>
+                <div className="flex flex-wrap gap-2">
+                  {safeAnalysis.keywords.job_titles.map(
+                    (keyword: string, index: number) => (
+                      <Badge
+                        key={index}
+                        variant="outline"
+                        className="border-blue-200 bg-blue-50 text-blue-700"
+                      >
+                        {keyword}
+                      </Badge>
+                    )
+                  )}
+                </div>
+              </div>
+            )}
 
-          <div>
-            <h3 className="mb-2 text-sm font-medium text-gray-600">Skills</h3>
-            <div className="flex flex-wrap gap-2">
-              {analysis.keywords.skills.map(
-                (keyword: string, index: number) => (
-                  <Badge
-                    key={index}
-                    variant="outline"
-                    className="border-green-200 bg-green-50 text-green-700"
-                  >
-                    {keyword}
-                  </Badge>
-                )
-              )}
-            </div>
-          </div>
+            {safeAnalysis.keywords.skills.length > 0 && (
+              <div>
+                <h3 className="mb-2 text-sm font-medium text-gray-600">
+                  Skills
+                </h3>
+                <div className="flex flex-wrap gap-2">
+                  {safeAnalysis.keywords.skills.map(
+                    (keyword: string, index: number) => (
+                      <Badge
+                        key={index}
+                        variant="outline"
+                        className="border-green-200 bg-green-50 text-green-700"
+                      >
+                        {keyword}
+                      </Badge>
+                    )
+                  )}
+                </div>
+              </div>
+            )}
 
-          <div>
-            <h3 className="mb-2 text-sm font-medium text-gray-600">
-              Career Paths
-            </h3>
-            <div className="flex flex-wrap gap-2">
-              {analysis.keywords.career_paths.map(
-                (keyword: string, index: number) => (
-                  <Badge
-                    key={index}
-                    variant="outline"
-                    className="border-purple-200 bg-purple-50 text-purple-700"
-                  >
-                    {keyword}
-                  </Badge>
-                )
-              )}
-            </div>
-          </div>
+            {safeAnalysis.keywords.career_paths.length > 0 && (
+              <div>
+                <h3 className="mb-2 text-sm font-medium text-gray-600">
+                  Career Paths
+                </h3>
+                <div className="flex flex-wrap gap-2">
+                  {safeAnalysis.keywords.career_paths.map(
+                    (keyword: string, index: number) => (
+                      <Badge
+                        key={index}
+                        variant="outline"
+                        className="border-purple-200 bg-purple-50 text-purple-700"
+                      >
+                        {keyword}
+                      </Badge>
+                    )
+                  )}
+                </div>
+              </div>
+            )}
 
-          <div>
-            <h3 className="mb-2 text-sm font-medium text-gray-600">
-              Professional Summaries
-            </h3>
-            <div className="flex flex-wrap gap-2">
-              {analysis.keywords.professional_summaries.map(
-                (keyword: string, index: number) => (
-                  <Badge
-                    key={index}
-                    variant="outline"
-                    className="border-orange-200 bg-orange-50 text-orange-700"
-                  >
-                    {keyword}
-                  </Badge>
-                )
-              )}
-            </div>
-          </div>
+            {safeAnalysis.keywords.professional_summaries.length > 0 && (
+              <div>
+                <h3 className="mb-2 text-sm font-medium text-gray-600">
+                  Professional Summaries
+                </h3>
+                <div className="flex flex-wrap gap-2">
+                  {safeAnalysis.keywords.professional_summaries.map(
+                    (keyword: string, index: number) => (
+                      <Badge
+                        key={index}
+                        variant="outline"
+                        className="border-orange-200 bg-orange-50 text-orange-700"
+                      >
+                        {keyword}
+                      </Badge>
+                    )
+                  )}
+                </div>
+              </div>
+            )}
 
-          <div>
-            <h3 className="mb-2 text-sm font-medium text-gray-600">
-              Additional Keywords
-            </h3>
-            <div className="flex flex-wrap gap-2">
-              {analysis.keywords.additional_keywords.map(
-                (keyword: string, index: number) => (
-                  <Badge
-                    key={index}
-                    variant="outline"
-                    className="border-gray-200 bg-gray-50 text-gray-700"
-                  >
-                    {keyword}
-                  </Badge>
-                )
-              )}
-            </div>
+            {safeAnalysis.keywords.additional_keywords.length > 0 && (
+              <div>
+                <h3 className="mb-2 text-sm font-medium text-gray-600">
+                  Additional Keywords
+                </h3>
+                <div className="flex flex-wrap gap-2">
+                  {safeAnalysis.keywords.additional_keywords.map(
+                    (keyword: string, index: number) => (
+                      <Badge
+                        key={index}
+                        variant="outline"
+                        className="border-gray-200 bg-gray-50 text-gray-700"
+                      >
+                        {keyword}
+                      </Badge>
+                    )
+                  )}
+                </div>
+              </div>
+            )}
           </div>
-        </div>
+        )}
       </div>
 
       {/* Career Recommendation */}
@@ -229,7 +275,7 @@ export default function ResumeAnalysisResult({
         <h2 className="mb-4 text-xl font-bold">Career Recommendation</h2>
         <div className="rounded-lg border border-blue-200 bg-gradient-to-r from-blue-50 to-indigo-50 p-4">
           <p className="leading-relaxed text-gray-700">
-            {analysis.career_recommendation}
+            {safeAnalysis.career_recommendation}
           </p>
         </div>
       </div>

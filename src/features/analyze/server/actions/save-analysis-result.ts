@@ -3,6 +3,8 @@
 import { z } from "zod"
 
 import { resumeAnalysisSchema } from "@/features/analyze/schema/analysis-result-schema"
+import { getCurrentUser } from "@/server/actions/get-current-user"
+import { type ResultAsync, tryCatch } from "@/types/result"
 import { createClient } from "@/utils/supabase/server"
 
 const saveGeneralAnalysisSchema = z.object({
@@ -12,44 +14,33 @@ const saveGeneralAnalysisSchema = z.object({
 
 export async function saveAnalysisResult(
   data: z.infer<typeof saveGeneralAnalysisSchema>
-) {
-  const supabase = await createClient()
+): ResultAsync<void, Error> {
+  return tryCatch(async () => {
+    const supabase = await createClient()
+    const [user, userError] = await getCurrentUser()
 
-  // Get current user
-  const {
-    data: { user },
-    error: userError,
-  } = await supabase.auth.getUser()
+    if (userError) {
+      throw userError
+    }
 
-  if (userError || !user) {
-    console.error("User authentication error:", userError)
-    throw new Error("User not authenticated")
-  }
+    // Validate input data
+    const parseResult = saveGeneralAnalysisSchema.safeParse(data)
+    if (!parseResult.success) {
+      throw new Error(
+        `Invalid data format: ${parseResult.error.issues[0].message}`
+      )
+    }
 
-  // Validate input data
-  const parseResult = saveGeneralAnalysisSchema.safeParse(data)
-  if (!parseResult.success) {
-    console.error("Schema validation failed:", parseResult.error)
-    throw new Error(
-      `Invalid data format: ${parseResult.error.issues[0].message}`
-    )
-  }
+    const { resumeId, analysisResult } = parseResult.data
 
-  const { resumeId, analysisResult } = parseResult.data
+    // Validate analysis result schema
+    const analysisParseResult = resumeAnalysisSchema.safeParse(analysisResult)
+    if (!analysisParseResult.success) {
+      throw new Error(
+        `Invalid analysis result format: ${analysisParseResult.error.issues[0].message}`
+      )
+    }
 
-  // Validate analysis result schema
-  const analysisParseResult = resumeAnalysisSchema.safeParse(analysisResult)
-  if (!analysisParseResult.success) {
-    console.error(
-      "Analysis result schema validation failed:",
-      analysisParseResult.error
-    )
-    throw new Error(
-      `Invalid analysis result format: ${analysisParseResult.error.issues[0].message}`
-    )
-  }
-
-  try {
     // Check if analysis already exists for this resume
     const { data: existingAnalysis } = await supabase
       .from("resume_analysis")
@@ -71,12 +62,6 @@ export async function saveAnalysisResult(
       analysis_date: new Date().toISOString(),
     }
 
-    console.log("Attempting to save analysis data:", {
-      resumeId,
-      userId: user.id,
-      hasExisting: !!existingAnalysis,
-    })
-
     if (existingAnalysis) {
       // Update existing analysis
       const { error } = await supabase
@@ -85,11 +70,8 @@ export async function saveAnalysisResult(
         .eq("id", existingAnalysis.id)
 
       if (error) {
-        console.error("Error updating analysis:", error)
         throw new Error(`Failed to update analysis result: ${error.message}`)
       }
-
-      console.log("Analysis updated successfully for resume:", resumeId)
     } else {
       // Insert new analysis
       const { error } = await supabase
@@ -97,16 +79,8 @@ export async function saveAnalysisResult(
         .insert(analysisData)
 
       if (error) {
-        console.error("Error saving analysis:", error)
         throw new Error(`Failed to save analysis result: ${error.message}`)
       }
-
-      console.log("New analysis saved successfully for resume:", resumeId)
     }
-
-    return { success: true, message: "Analysis saved successfully" }
-  } catch (error) {
-    console.error("Error in saveAnalysisResult:", error)
-    throw error
-  }
+  })
 }

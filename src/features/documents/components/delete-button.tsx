@@ -12,12 +12,12 @@ export default function DeleteButton({ fileName }: { fileName: string }) {
 
   async function handleDelete() {
     startTransition(async () => {
-      const response = await deleteDocument(fileName)
+      const [_, error] = await deleteDocument(fileName)
 
-      if (response.status === "success") {
-        toast.success(response.message)
+      if (error) {
+        toast.error(error.message)
       } else {
-        toast.error(response.message)
+        toast.success("Document deleted successfully")
       }
     })
   }

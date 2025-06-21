@@ -1,7 +1,11 @@
-export default async function pdfParser(url: string) {
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000"
+import { ResultAsync, tryCatch } from "@/types/result"
 
-  try {
+export default async function pdfParser(
+  url: string
+): ResultAsync<string, Error> {
+  return tryCatch(async () => {
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000"
+
     const response = await fetch(`${baseUrl}/api/parse-pdf`, {
       method: "POST",
       headers: {
@@ -11,13 +15,19 @@ export default async function pdfParser(url: string) {
     })
 
     if (!response.ok) {
-      throw new Error("Failed to parse PDF")
+      const errorText = await response.text().catch(() => "Unknown error")
+      throw new Error(
+        `Failed to parse PDF: ${response.status} ${response.statusText} - ${errorText}`
+      )
     }
 
     const data = await response.json()
-    return data
-  } catch (error) {
-    console.error("Error parsing PDF:", error)
-    throw new Error("Failed to parse PDF")
-  }
+
+    // Validasi response structure
+    if (!data || typeof data !== "string") {
+      throw new Error("Invalid PDF parser response format")
+    }
+
+    return data as string
+  })
 }

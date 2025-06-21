@@ -3,42 +3,37 @@
 import { CellContext } from "@tanstack/react-table"
 import { FileText } from "lucide-react"
 import Link from "next/link"
+import { useRouter } from "next/navigation"
 import React, { JSX, useEffect, useState, useTransition } from "react"
 import { toast } from "sonner"
 
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import {
-  Dialog,
-  DialogContent,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog"
+  Drawer,
+  DrawerContent,
+  DrawerFooter,
+  DrawerHeader,
+  DrawerTitle,
+  DrawerTrigger,
+} from "@/components/ui/drawer"
 import { ScrollArea } from "@/components/ui/scroll-area"
-import { Database } from "@/types/supabase-types"
+import { DbResume, JobApplication } from "@/types/database"
 
 import updateTableCell from "../../server/actions/update-table-cell"
 
-type Resume = Database["public"]["Tables"]["resumes"]["Row"]
-
-type JobApplication =
-  Database["public"]["Tables"]["job_applications"]["Row"] & {
-    resumes: Resume | null
-  }
-
 interface ResumeCellProps extends CellContext<JobApplication, string | null> {
-  resumes: Resume[]
+  resumes: DbResume[]
 }
 
 export const ResumeCell = ({
   getValue,
   row,
   column,
-  resumes = [],
+  resumes,
 }: ResumeCellProps): JSX.Element => {
   const currentValue = getValue() || null
+  const router = useRouter()
 
   const rowId = row.original.id
   const columnId = column.id
@@ -52,19 +47,18 @@ export const ResumeCell = ({
 
   const handleSubmit = async (resumeId: string) => {
     startTransition(async () => {
-      try {
-        await updateTableCell(rowId, columnId, resumeId)
-        toast.success("Resume assigned to job application")
+      const [_, error] = await updateTableCell(rowId, columnId, resumeId)
+      toast.success("Resume assigned to job application")
 
-        setSelectedResumeId(resumeId)
-      } catch (error) {
+      router.refresh()
+      setSelectedResumeId(resumeId)
+
+      if (error) {
         toast.error("Failed to assign resume")
-        console.error("Error updating resume:", error)
       }
     })
   }
 
-  // Add useEffect to close dialog when transition completes
   useEffect(() => {
     if (!isPending) {
       setIsOpen(false)
@@ -72,8 +66,8 @@ export const ResumeCell = ({
   }, [isPending])
 
   return (
-    <Dialog open={isOpen} onOpenChange={setIsOpen}>
-      <DialogTrigger asChild>
+    <Drawer open={isOpen} onOpenChange={setIsOpen} direction="right">
+      <DrawerTrigger asChild>
         <Button
           variant="ghost"
           size="sm"
@@ -93,12 +87,12 @@ export const ResumeCell = ({
             </div>
           )}
         </Button>
-      </DialogTrigger>
+      </DrawerTrigger>
 
-      <DialogContent className="sm:max-w-md">
-        <DialogHeader>
-          <DialogTitle>Select Resume for Application</DialogTitle>
-        </DialogHeader>
+      <DrawerContent>
+        <DrawerHeader>
+          <DrawerTitle>Select Resume for Application</DrawerTitle>
+        </DrawerHeader>
 
         {resumes.length === 0 ? (
           <div className="py-6 text-center">
@@ -141,19 +135,17 @@ export const ResumeCell = ({
           </ScrollArea>
         )}
 
-        <DialogFooter className="flex items-center justify-between sm:justify-between">
+        <DrawerFooter className="flex flex-row items-center justify-between gap-2 p-4">
           <div className="flex gap-2">
             {selectedResumeId && (
-              <React.Fragment>
-                <Button
-                  size="sm"
-                  variant="outline"
-                  className="cursor-pointer"
-                  asChild
-                >
-                  <Link href={`analyze/${selectedResumeId}`}>Analyze</Link>
-                </Button>
-              </React.Fragment>
+              <Button
+                size="sm"
+                variant="outline"
+                className="cursor-pointer"
+                asChild
+              >
+                <Link href={`analyze/${selectedResumeId}`}>Analyze</Link>
+              </Button>
             )}
           </div>
 
@@ -172,8 +164,8 @@ export const ResumeCell = ({
                 ? "Current Selection"
                 : "Select Resume"}
           </Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
+        </DrawerFooter>
+      </DrawerContent>
+    </Drawer>
   )
 }

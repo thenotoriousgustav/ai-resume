@@ -1,33 +1,8 @@
-import { type NextRequest, NextResponse } from "next/server"
+import { type NextRequest } from "next/server"
 
 import { updateSession } from "@/utils/supabase/middleware"
 
-import { createClient } from "./utils/supabase/server"
-
 export async function middleware(request: NextRequest) {
-  const supabase = await createClient()
-
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
-
-  const pathname = request.nextUrl.pathname
-  const protectedRoutes = [
-    "/resume",
-    "/profile",
-    "/job-tracker",
-    "/dashboard",
-    "/documents",
-  ]
-
-  if (!user && protectedRoutes.some((path) => pathname.includes(path))) {
-    return NextResponse.redirect(new URL("/auth", request.url))
-  }
-
-  if (user && pathname === "/auth") {
-    return NextResponse.redirect(new URL("/", request.url))
-  }
-
   return await updateSession(request)
 }
 

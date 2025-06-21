@@ -36,12 +36,12 @@ export default function UpdateResumeForm({ resume }: { resume: Resume }) {
   async function onSubmit(values: z.infer<typeof UpdateResumeSchema>) {
     startTransition(async () => {
       const updateResumeWithId = updateResume.bind(null, resume.id)
-      const data = await updateResumeWithId(values)
+      const [_, error] = await updateResumeWithId(values)
 
-      if (data.status === "error") {
-        toast.error(data.message)
+      if (error) {
+        toast.error(error.message)
       } else {
-        toast.success(data.message)
+        toast.success("Resume updated successfully")
       }
     })
   }

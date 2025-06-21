@@ -66,12 +66,12 @@ export default function AddJobApplication({
 
   async function onSubmit(values: JobApplicationFormData) {
     startTransition(async () => {
-      const data = await addJobApplication(values)
+      const [_, error] = await addJobApplication(values)
 
-      if (data.status === "error") {
-        toast.error(data.message)
+      if (error) {
+        toast.error(error.message)
       } else {
-        toast.success(data.message)
+        toast.success("Job application added successfully")
         form.reset()
         setOpen(false)
         if (onSuccess) {
@@ -84,7 +84,7 @@ export default function AddJobApplication({
   return (
     <Drawer open={open} onOpenChange={setOpen} direction="right">
       <DrawerTrigger asChild>
-        <Button className="gap-2">
+        <Button className="gap-2" size={"sm"}>
           <Plus className="h-4 w-4" />
           Add Job Application
         </Button>

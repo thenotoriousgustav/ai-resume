@@ -1,43 +1,48 @@
-// components/save-indicator.tsx
-import { AlertCircle, CheckCircle, Clock, Loader2 } from "lucide-react"
+"use client"
 
-import { useResumeStore } from "@/stores/resume-builder-store"
+import { AlertCircle, CheckCircle, Loader2 } from "lucide-react"
 
-export function SaveIndicator() {
-  const { saveStatus, lastSaved } = useResumeStore()
+interface SaveIndicatorProps {
+  isSaving: boolean
+  lastSaved: Date | null
+  saveError: string | null
+}
 
-  const getStatusIcon = () => {
-    switch (saveStatus) {
-      case "saving":
-        return <Loader2 className="h-4 w-4 animate-spin text-blue-500" />
-      case "saved":
-        return <CheckCircle className="h-4 w-4 text-green-500" />
-      case "error":
-        return <AlertCircle className="h-4 w-4 text-red-500" />
-      default:
-        return <Clock className="h-4 w-4 text-gray-400" />
-    }
+export function SaveIndicator({
+  isSaving,
+  lastSaved,
+  saveError,
+}: SaveIndicatorProps) {
+  if (saveError) {
+    return (
+      <div className="flex items-center gap-2 text-sm text-red-600">
+        <AlertCircle className="h-4 w-4" />
+        <span>Failed to save</span>
+      </div>
+    )
   }
 
-  const getStatusText = () => {
-    switch (saveStatus) {
-      case "saving":
-        return "Saving..."
-      case "saved":
-        return lastSaved
-          ? `Saved at ${lastSaved.toLocaleTimeString()}`
-          : "Saved"
-      case "error":
-        return "Save failed"
-      default:
-        return "Unsaved changes"
-    }
+  if (isSaving) {
+    return (
+      <div className="flex items-center gap-2 text-sm text-gray-600">
+        <Loader2 className="h-4 w-4 animate-spin" />
+        <span>Saving...</span>
+      </div>
+    )
+  }
+
+  if (lastSaved) {
+    return (
+      <div className="flex items-center gap-2 text-sm text-green-600">
+        <CheckCircle className="h-4 w-4" />
+        <span>Saved at {lastSaved.toLocaleTimeString()}</span>
+      </div>
+    )
   }
 
   return (
-    <div className="text-muted-foreground flex items-center gap-2 text-sm">
-      {getStatusIcon()}
-      <span>{getStatusText()}</span>
+    <div className="flex items-center gap-2 text-sm text-gray-400">
+      <span>No changes</span>
     </div>
   )
 }

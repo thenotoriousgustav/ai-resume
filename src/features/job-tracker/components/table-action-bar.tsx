@@ -24,7 +24,7 @@ import {
   JobApplicationStatus,
 } from "@/types/database"
 
-import { deleteJobs } from "../server/actions/delete-jobs"
+import deleteJobs from "../server/actions/delete-jobs"
 import { updateJobs } from "../server/actions/update-jobs"
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -73,13 +73,13 @@ export function TableActionBar({ table }: JobsTableActionBarProps) {
 
       startTransition(async () => {
         try {
-          const { error } = await updateJobs({
+          const [, error] = await updateJobs({
             ids: rows.map((row) => row.original.id),
             [field]: value,
           })
 
           if (error) {
-            toast.error(error)
+            toast.error(error.message)
             return
           }
 
@@ -102,12 +102,12 @@ export function TableActionBar({ table }: JobsTableActionBarProps) {
     setCurrentAction("delete")
     startTransition(async () => {
       try {
-        const { error } = await deleteJobs({
+        const [, error] = await deleteJobs({
           ids: rows.map((row) => row.original.id),
         })
 
         if (error) {
-          toast.error(error)
+          toast.error(error.message)
           return
         }
 

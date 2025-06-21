@@ -1,48 +1,100 @@
+import { Clock, Edit, Plus } from "lucide-react"
 import Link from "next/link"
-import React from "react"
 
-import { Button } from "@/components/ui/button"
+import { Badge } from "@/components/ui/badge"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Separator } from "@/components/ui/separator"
 import getResumesBuilder from "@/features/resume-builder/actions/get-resumes-builder"
 
-export default async function ResumeBuilderPage() {
-  const data = await getResumesBuilder()
+import CreateResumeClient from "./create-resume-client"
+
+export default async function ResumePage() {
+  // Fetch existing resume builder projects
+  const userResumes = await getResumesBuilder()
 
   return (
-    <section className="p-6">
-      <div className="space-y-4">
-        <div className="flex items-center justify-between">
-          <h1 className="text-2xl font-bold">Resume Builder</h1>
-          <Button asChild>
-            <Link href="/resume-builder/new">Create New Resume</Link>
-          </Button>
+    <div className="container mx-auto max-w-6xl p-6">
+      <div className="mb-8">
+        <h1 className="text-3xl font-bold">Resume Builder</h1>
+        <p className="text-muted-foreground mt-2">
+          Build and manage your professional resumes
+        </p>
+      </div>
+
+      {/* My Resumes Section - Only show if user has resumes */}
+      {userResumes.length > 0 && (
+        <>
+          <div className="mb-8">
+            <div className="mb-4 flex items-center justify-between">
+              <div>
+                <h2 className="text-2xl font-semibold">My Resumes</h2>
+                <p className="text-muted-foreground text-sm">
+                  Continue working on your existing resumes
+                </p>
+              </div>
+              <Badge variant="secondary" className="text-sm">
+                {userResumes.length} resume{userResumes.length !== 1 ? "s" : ""}
+              </Badge>
+            </div>
+
+            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+              {userResumes.map((resume) => (
+                <Card
+                  key={resume.id}
+                  className="group hover:border-primary/20 cursor-pointer transition-all hover:shadow-md"
+                >
+                  <Link href={`/resume-builder/${resume.id}`} className="block">
+                    <CardHeader className="pb-3">
+                      <div className="flex items-start justify-between">
+                        <div className="min-w-0 flex-1">
+                          <CardTitle className="truncate text-lg">
+                            {resume.title || "Untitled Resume"}
+                          </CardTitle>
+                          <div className="mt-1 flex items-center gap-2">
+                            <Badge variant="outline" className="text-xs">
+                              {resume.template || "Default"}
+                            </Badge>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-1 opacity-0 transition-opacity group-hover:opacity-100">
+                          <Edit className="text-muted-foreground h-4 w-4" />
+                        </div>
+                      </div>
+                    </CardHeader>
+                    <CardContent className="pt-0">
+                      <div className="text-muted-foreground flex items-center gap-2 text-sm">
+                        <Clock className="h-4 w-4" />
+                        <span>
+                          {resume.updated_at
+                            ? `Updated ${new Date(resume.updated_at).toLocaleDateString()}`
+                            : "Recently created"}
+                        </span>
+                      </div>
+                    </CardContent>
+                  </Link>
+                </Card>
+              ))}
+            </div>
+          </div>
+
+          <Separator className="my-8" />
+        </>
+      )}
+
+      {/* Create New Resume Section */}
+      <div className="mb-8">
+        <div className="mb-4">
+          <h2 className="flex items-center gap-2 text-2xl font-semibold">
+            <Plus className="h-6 w-6" />
+            Create New Resume
+          </h2>
+          <p className="text-muted-foreground text-sm">
+            Choose how you want to create your resume
+          </p>
         </div>
 
-        {data.length > 0 ? (
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3">
-            {data.map((resume) => (
-              <Link
-                key={resume.id}
-                href={`/resume-builder/${resume.id}`}
-                className="rounded-lg border p-4 transition-shadow hover:shadow-md"
-              >
-                <h2 className="text-lg font-semibold">{resume.title}</h2>
-                <p className="text-muted-foreground text-sm">
-                  Created on: {new Date(resume.created_at).toLocaleDateString()}
-                </p>
-                <p className="text-muted-foreground text-sm">
-                  Last updated:{" "}
-                  {new Date(resume.updated_at).toLocaleDateString()}
-                </p>
-                <p className="text-muted-foreground text-sm">
-                  Template: {resume.template}
-                </p>
-              </Link>
-            ))}
-          </div>
-        ) : (
-          <p>No resumes found.</p>
-        )}
+        <CreateResumeClient />
       </div>
-    </section>
+    </div>
   )
 }

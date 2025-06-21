@@ -1,29 +1,27 @@
 "use server"
 
-import { redirect } from "next/navigation"
+import { cache } from "react"
 
+import { tryCatch } from "@/types/result"
 import { createClient } from "@/utils/supabase/server"
 
-export async function getCurrentUser() {
-  const supabase = await createClient()
+export const getCurrentUser = cache(async () => {
+  return tryCatch(async () => {
+    const supabase = await createClient()
 
-  try {
     const {
       data: { user },
       error,
     } = await supabase.auth.getUser()
 
-    if (!user) {
-      redirect("/auth")
+    if (error) {
+      throw new Error(`Failed to fetch user: ${error.message}`)
     }
 
-    if (error) {
-      console.error("Error fetching user:", error.message)
-      throw new Error("Failed to fetch user")
+    if (!user) {
+      throw new Error("User not authenticated")
     }
+
     return user
-  } catch (error) {
-    console.error("Error fetching user:", error)
-    throw new Error("An unexpected error occurred while fetching the user")
-  }
-}
+  })
+})

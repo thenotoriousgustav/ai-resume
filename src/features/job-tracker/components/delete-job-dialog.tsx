@@ -29,7 +29,7 @@ import {
 import { useMediaQuery } from "@/hooks/use-media-query"
 import { JobApplication } from "@/types/database"
 
-import { deleteJobs } from "../server/actions/delete-jobs"
+import deleteJobs from "../server/actions/delete-jobs"
 
 interface DeleteJobDialogProps
   extends React.ComponentPropsWithoutRef<typeof Dialog> {
@@ -49,12 +49,11 @@ export function DeleteJobDialog({
 
   function onDelete() {
     startDeleteTransition(async () => {
-      const { error } = await deleteJobs({
+      const [, error] = await deleteJobs({
         ids: job.map((jobItem) => jobItem.id),
       })
-
       if (error) {
-        toast.error(error)
+        toast.error(error.message)
         return
       }
 

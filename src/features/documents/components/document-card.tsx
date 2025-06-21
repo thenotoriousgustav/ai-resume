@@ -1,3 +1,5 @@
+"use client"
+
 import Link from "next/link"
 
 import { Card, CardContent, CardFooter, CardTitle } from "@/components/ui/card"

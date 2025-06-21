@@ -1,8 +1,10 @@
 import React, { Suspense } from "react"
 
 import DashboardClient from "@/features/dashboard/components/dashboard-client"
-import getJobApplications from "@/server/data-access/get-job-applications"
-import getResumes from "@/server/data-access/get-resumes"
+import getJobApplications from "@/server/queries/get-job-applications"
+import getResumes from "@/server/queries/get-resumes"
+
+export const dynamic = "force-dynamic"
 
 // Loading component for dashboard content
 function DashboardContentSkeleton() {
@@ -42,12 +44,18 @@ function DashboardContentSkeleton() {
   )
 }
 
-// Async component for fetching data
 async function DashboardData() {
-  const [resumes, jobApplications] = await Promise.all([
+  const [resumesResult, jobAppsResult] = await Promise.all([
     getResumes(),
     getJobApplications(),
   ])
+
+  const [resumes, resumesError] = resumesResult
+  const [jobApplications, jobApplicationsError] = jobAppsResult
+
+  if (resumesError || jobApplicationsError) {
+    return <div>Error loading dashboard data.</div>
+  }
 
   return (
     <DashboardClient

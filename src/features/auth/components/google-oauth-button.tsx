@@ -2,15 +2,15 @@ import React from "react"
 
 import { Button } from "@/components/ui/button"
 
-import googleOAuth from "../server/actions/google-oauth"
+import { googleOAuthWithTryCatch } from "../server/actions/google-oauth"
 
 export default function GoogleOAuthButton() {
   return (
-    <form action={googleOAuth}>
+    <form action={googleOAuthWithTryCatch}>
       <Button
+        className="w-full cursor-pointer"
         variant={"secondary"}
         type="submit"
-        className="w-full cursor-pointer"
       >
         Google
       </Button>

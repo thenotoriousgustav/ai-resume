@@ -49,12 +49,12 @@ export default function UploudResumeForm({ onSuccess }: ResumeInputProps) {
 
   async function onSubmit(values: z.infer<typeof UploudResumeSchema>) {
     startTransition(async () => {
-      const data = await uploadResume(values)
+      const [_, error] = await uploadResume(values)
 
-      if (data.status === "error") {
-        toast.error(data.message)
+      if (error) {
+        toast.error(error.message)
       } else {
-        toast.success(data.message)
+        toast.success("Resume uploaded successfully")
         form.reset()
         if (onSuccess) {
           onSuccess()

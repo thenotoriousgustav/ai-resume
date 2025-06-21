@@ -32,7 +32,32 @@ export async function updateSession(request: NextRequest) {
     }
   )
 
-  await supabase.auth.getUser()
+  // Get user directly from supabase in middleware (don't use getCurrentUser to avoid circular dependency)
+  const {
+    data: { user },
+    error: userError,
+  } = await supabase.auth.getUser()
+
+  if (userError) {
+    console.error("Error fetching user:", userError)
+  }
+
+  const pathname = request.nextUrl.pathname
+  const protectedRoutes = [
+    "/resume",
+    "/profile",
+    "/job-tracker",
+    "/dashboard",
+    "/documents",
+  ]
+
+  if (!user && protectedRoutes.some((path) => pathname.includes(path))) {
+    return NextResponse.redirect(new URL("/auth", request.url))
+  }
+
+  if (user && pathname === "/auth") {
+    return NextResponse.redirect(new URL("/", request.url))
+  }
 
   return supabaseResponse
 }

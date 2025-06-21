@@ -14,57 +14,37 @@ import ResumeViewer from "./resume-viewer"
 
 export default function AnalyzeClient({
   resumeData,
+  existingAnalysis: initialExistingAnalysis = null,
 }: {
   resumeData: DbResume
+  existingAnalysis?: DbResumeAnalysis | null
 }) {
   const [analysisResult, setAnalysisResult] = useState<z.infer<
     typeof resumeAnalysisSchema
   > | null>(null)
   const [existingAnalysis, setExistingAnalysis] =
-    useState<DbResumeAnalysis | null>(null)
-  const [isLoadingAnalysis, setIsLoadingAnalysis] = useState(true)
+    useState<DbResumeAnalysis | null>(initialExistingAnalysis)
+  const [isLoadingAnalysis, setIsLoadingAnalysis] = useState(false)
 
-  // Load existing analysis on component mount
+  // Set existing analysis result to display when component mounts
   useEffect(() => {
-    const loadExistingAnalysis = async () => {
-      try {
-        setIsLoadingAnalysis(true)
-        const response = await fetch(`/api/resume-analysis/${resumeData.id}`)
+    if (initialExistingAnalysis) {
+      setExistingAnalysis(initialExistingAnalysis)
 
-        if (response.ok) {
-          const analysis = await response.json()
-          if (analysis) {
-            setExistingAnalysis(analysis)
-            // Set the analysis result from raw_analysis_data
-            if (analysis.raw_analysis_data) {
-              setAnalysisResult(
-                analysis.raw_analysis_data as z.infer<
-                  typeof resumeAnalysisSchema
-                >
-              )
-            }
-          }
-        } else if (response.status === 404) {
-          // No existing analysis found - this is normal for first-time analysis
-          console.log("No existing analysis found for this resume")
-        } else {
-          // Log other errors
-          const errorText = await response.text()
-          console.error(
-            `Error loading existing analysis (${response.status}):`,
-            errorText
+      // If there's existing analysis, also show it as the current result
+      if (initialExistingAnalysis.raw_analysis_data) {
+        try {
+          const parsedAnalysis = resumeAnalysisSchema.parse(
+            initialExistingAnalysis.raw_analysis_data
           )
+          setAnalysisResult(parsedAnalysis)
+        } catch (error) {
+          console.error("Error parsing existing analysis:", error)
         }
-      } catch (error) {
-        console.error("Error loading existing analysis:", error)
-        // Don't show error toast for initial load failures as analysis might not exist
-      } finally {
-        setIsLoadingAnalysis(false)
       }
     }
-
-    loadExistingAnalysis()
-  }, [resumeData.id])
+    setIsLoadingAnalysis(false)
+  }, [initialExistingAnalysis])
 
   const handleAnalysisComplete = (
     result: z.infer<typeof resumeAnalysisSchema>

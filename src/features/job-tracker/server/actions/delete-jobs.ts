@@ -1,22 +1,22 @@
 "use server"
 
 import { revalidatePath } from "next/cache"
-import { redirect } from "next/navigation"
 
+import { getCurrentUser } from "@/server/actions/get-current-user"
+import { ResultAsync, tryCatch } from "@/types/result"
 import { createClient } from "@/utils/supabase/server"
 
-export async function deleteJobs(input: { ids: string[] }) {
-  const supabase = await createClient()
+export default async function deleteJobs(input: {
+  ids: string[]
+}): Promise<ResultAsync<void, Error>> {
+  return tryCatch(async () => {
+    const supabase = await createClient()
+    const [user, userError] = await getCurrentUser()
 
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
+    if (userError) {
+      throw userError
+    }
 
-  if (!user) {
-    redirect("/login")
-  }
-
-  try {
     const { error } = await supabase
       .from("job_applications")
       .delete()
@@ -25,23 +25,9 @@ export async function deleteJobs(input: { ids: string[] }) {
 
     if (error) {
       console.error("Error deleting jobs:", error)
-      return {
-        data: null,
-        error: `Failed to delete jobs: ${error.message}`,
-      }
+      throw new Error(`Failed to delete jobs: ${error.message}`)
     }
 
     revalidatePath("/job-tracker")
-
-    return {
-      data: null,
-      error: null,
-    }
-  } catch (err) {
-    return {
-      data: null,
-      error:
-        err instanceof Error ? err.message : "An unexpected error occurred",
-    }
-  }
+  })
 }

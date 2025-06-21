@@ -1,7 +1,6 @@
 "use client"
 
 import { Download, Eye, Minus, Plus, Printer, RotateCw } from "lucide-react"
-import printJS from "print-js"
 import { toast } from "sonner"
 
 import { Button } from "@/components/ui/button"
@@ -33,14 +32,20 @@ export default function PdfToolbar({ resume }: { resume: Tables<"resumes"> }) {
     }
   }
 
-  const handlePrint = () => {
-    printJS({
-      printable: resume.storage_url,
-      type: "pdf",
-      onError: () => {
-        toast.error("Failed to print. Please try again.")
-      },
-    })
+  const handlePrint = async () => {
+    try {
+      const { default: printJS } = await import("print-js")
+      printJS({
+        printable: resume.storage_url,
+        type: "pdf",
+        onError: () => {
+          toast.error("Failed to print. Please try again.")
+        },
+      })
+    } catch (error) {
+      console.error("Print failed:", error)
+      toast.error("Failed to load print functionality. Please try again.")
+    }
   }
 
   const handleView = () => {

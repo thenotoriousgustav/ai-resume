@@ -1,4 +1,4 @@
-import TestResumeBuilder from "@/features/resume-builder/components/test-resume-builder"
+import { ResumeBuilder } from "@/features/resume-builder/components/resume-builder"
 
 export default async function ResumeBuilderPage({
   params,
@@ -9,7 +9,7 @@ export default async function ResumeBuilderPage({
 
   return (
     <div className="h-full">
-      <TestResumeBuilder id={id} />
+      <ResumeBuilder resumeId={id} />
     </div>
   )
 }

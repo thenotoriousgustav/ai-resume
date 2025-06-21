@@ -4,7 +4,7 @@ import { revalidatePath } from "next/cache"
 import { z } from "zod"
 
 import { getCurrentUser } from "@/server/actions/get-current-user"
-import { ActionResponse } from "@/types/action-response"
+import { type ResultAsync, tryCatch } from "@/types/result"
 import { createClient } from "@/utils/supabase/server"
 
 import { resumeSchema } from "../../schemas/resume-schema"
@@ -14,31 +14,22 @@ const UpdateResumeSchema = resumeSchema.omit({ file: true })
 export default async function updateResume(
   id: string,
   values: z.infer<typeof UpdateResumeSchema>
-): Promise<ActionResponse> {
-  try {
+): Promise<ResultAsync<void, Error>> {
+  return tryCatch(async () => {
     const supabase = await createClient()
-    const user = await getCurrentUser()
+    const [user, userError] = await getCurrentUser()
+
+    if (userError) {
+      throw userError
+    }
 
     const valuesResult = UpdateResumeSchema.safeParse(values)
 
     if (!valuesResult.success) {
-      console.log("Invalid input data:", valuesResult.error.issues)
-      return {
-        status: "error",
-        message: "Invalid input data.",
-        error: valuesResult.error.issues[0].message,
-      }
+      throw new Error(valuesResult.error.issues[0].message)
     }
 
     const { title, description } = valuesResult.data
-
-    if (!id) {
-      return {
-        status: "error",
-        message: "Invalid input data.",
-        error: "Resume ID is required.",
-      }
-    }
 
     const { error: dbError } = await supabase
       .from("resumes")
@@ -50,25 +41,9 @@ export default async function updateResume(
       .eq("user_id", user.id)
 
     if (dbError) {
-      return {
-        status: "error",
-        message: "Failed to update file in database.",
-        error: dbError.message,
-      }
+      throw new Error(`Failed to update file in database: ${dbError.message}`)
     }
 
-    revalidatePath("/documents", "layout")
-
-    return {
-      status: "success",
-      message: "File updated successfully.",
-    }
-  } catch (error) {
-    return {
-      status: "error",
-      message: "An unexpected error occurred while updating the resume",
-      error:
-        error instanceof Error ? error.message : "An unexpected error occurred",
-    }
-  }
+    revalidatePath("/documents")
+  })
 }

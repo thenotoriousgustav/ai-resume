@@ -1,8 +1,9 @@
 "use server"
 
 import { revalidatePath } from "next/cache"
-import { redirect } from "next/navigation"
 
+import { getCurrentUser } from "@/server/actions/get-current-user"
+import { type ResultAsync, tryCatch } from "@/types/result"
 import { createClient } from "@/utils/supabase/server"
 
 interface UpdateJobsInput {
@@ -11,18 +12,18 @@ interface UpdateJobsInput {
   priority?: string
 }
 
-export async function updateJobs(input: UpdateJobsInput) {
-  const supabase = await createClient()
+export async function updateJobs(
+  input: UpdateJobsInput
+): ResultAsync<void, Error> {
+  return tryCatch(async () => {
+    const supabase = await createClient()
 
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
+    const [user, userError] = await getCurrentUser()
 
-  if (!user) {
-    redirect("/login")
-  }
+    if (userError) {
+      throw userError
+    }
 
-  try {
     const updateData: Record<string, string> = {}
 
     if (input.status) {
@@ -41,24 +42,9 @@ export async function updateJobs(input: UpdateJobsInput) {
       .select("*")
 
     if (error) {
-      console.error("Error updating jobs:", error)
-      return {
-        data: null,
-        error: `Failed to update jobs: ${error.message}`,
-      }
+      throw new Error(`Failed to update jobs: ${error.message}`)
     }
 
     revalidatePath("/job-tracker")
-
-    return {
-      data: null,
-      error: null,
-    }
-  } catch (err) {
-    return {
-      data: null,
-      error:
-        err instanceof Error ? err.message : "An unexpected error occurred",
-    }
-  }
+  })
 }

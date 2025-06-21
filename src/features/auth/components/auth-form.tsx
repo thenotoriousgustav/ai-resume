@@ -34,12 +34,12 @@ export default function AuthForm() {
 
   async function onSubmit(values: z.infer<typeof authSchema>) {
     startTransition(async () => {
-      const data = await otpAuth(values)
+      const [_, error] = await otpAuth(values)
 
-      if (data.status === "error") {
-        toast.error(data.message)
+      if (error) {
+        toast.error(error.message)
       } else {
-        toast.success(data.message)
+        toast.success("Magic link sent! Please check your email to continue.")
       }
     })
   }

@@ -3,16 +3,19 @@
 import { revalidatePath } from "next/cache"
 
 import { getCurrentUser } from "@/server/actions/get-current-user"
-import { ActionResponse } from "@/types/action-response"
+import { type ResultAsync, tryCatch } from "@/types/result"
 import { createClient } from "@/utils/supabase/server"
 
 export default async function deleteDocument(
   fileName: string
-): Promise<ActionResponse> {
-  try {
+): ResultAsync<void, Error> {
+  return tryCatch(async () => {
     const supabase = await createClient()
+    const [user, userError] = await getCurrentUser()
 
-    const user = await getCurrentUser()
+    if (userError) {
+      throw userError
+    }
 
     const filePath = `${user.id}/${fileName}`
 
@@ -21,11 +24,9 @@ export default async function deleteDocument(
       .remove([filePath])
 
     if (storageError) {
-      return {
-        status: "error",
-        message: "Failed to delete file from storage.",
-        error: storageError.message,
-      }
+      throw new Error(
+        `Failed to delete file from storage: ${storageError.message}`
+      )
     }
 
     const { error: dbError } = await supabase
@@ -35,25 +36,9 @@ export default async function deleteDocument(
       .eq("file_name", fileName)
 
     if (dbError) {
-      return {
-        status: "error",
-        message: "Failed to delete file from database.",
-        error: dbError.message,
-      }
+      throw new Error(`Failed to delete file from database: ${dbError.message}`)
     }
 
     revalidatePath("/documents")
-
-    return {
-      status: "success",
-      message: "File deleted successfully.",
-    }
-  } catch (error) {
-    return {
-      status: "error",
-      message: "An unexpected error occurred while deleting the document",
-      error:
-        error instanceof Error ? error.message : "An unexpected error occurred",
-    }
-  }
+  })
 }

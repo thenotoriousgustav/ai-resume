@@ -8,7 +8,7 @@ import { z } from "zod"
 import { DbCoverLetter, JobApplication } from "@/types/database"
 
 import { coverLetterSchema } from "../schemas/cover-letter-schema"
-import { saveCoverLetter } from "../server/actions/cover-letter-action"
+import { saveCoverLetter } from "../server/actions/save-cover-letter"
 
 import CoverLetterForm from "./cover-letter-form"
 import CoverLetterResult from "./cover-letter-result"

@@ -5,9 +5,9 @@ import React from "react"
 import { DataTable } from "@/components/data-table/data-table"
 import { DataTableSortList } from "@/components/data-table/data-table-sort-list"
 import { DataTableToolbar } from "@/components/data-table/data-table-toolbar"
-import { getJobApplications } from "@/features/job-tracker/server/data-access/get-job-applications"
+import { getJobApplications } from "@/features/job-tracker/server/queries/get-job-applications"
 import { useDataTable } from "@/hooks/use-data-table"
-import getResumes from "@/server/data-access/get-resumes"
+import getResumes from "@/server/queries/get-resumes"
 import { DataTableRowAction } from "@/types/data-table"
 import { JobApplication } from "@/types/database"
 
@@ -31,7 +31,23 @@ export default function JobTable({
   promises,
   columnVisibilityCookie,
 }: JobTableProps) {
-  const [{ data, pageCount }, resumes] = React.use(promises)
+  const [
+    [jobApplicationsData, jobApplicationsError],
+    [resumesData, resumesError],
+  ] = React.use(promises)
+
+  // Handle errors
+  if (jobApplicationsError) {
+    throw jobApplicationsError
+  }
+
+  if (resumesError) {
+    throw resumesError
+  }
+
+  const data = jobApplicationsData?.data || []
+  const pageCount = jobApplicationsData?.pageCount || 0
+  const resumes = resumesData || []
 
   const [rowAction, setRowAction] =
     React.useState<DataTableRowAction<JobApplication> | null>(null)
@@ -64,7 +80,7 @@ export default function JobTable({
   return (
     <React.Fragment>
       <DataTable table={table} actionBar={<TableActionBar table={table} />}>
-        <DataTableToolbar table={table}>
+        <DataTableToolbar table={table} className="items-center md:items-start">
           <AddJobApplication />
           <JobsTableToolbarActions table={table} />
           <DataTableSortList table={table} />

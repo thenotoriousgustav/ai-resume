@@ -1,9 +1,8 @@
 import React from "react"
 
-import getJobApplication from "@/server/data-access/get-job-application"
-
-import { getLatestResumeAnalysis } from "./_actions/targeted-resume-actions"
-import TargetedResumeWrapper from "./_components/targeted-resume-wrapper"
+import TargetedResumeWrapper from "@/features/targeted-resume/components/targeted-resume-wrapper"
+import getLatestResumeAnalysis from "@/features/targeted-resume/server/queries/get-latest-resume-analysis"
+import getJobApplication from "@/server/queries/get-job-application"
 
 export default async function TargetedResumePage({
   params,
@@ -20,23 +19,42 @@ export default async function TargetedResumePage({
     )
   }
 
-  const jobApplicationData = await getJobApplication(jobApplicationId)
+  // Fetch both in parallel using Promise.all
+  const [jobApplicationResult, previousAnalysisResult] = await Promise.all([
+    getJobApplication(jobApplicationId),
+    getLatestResumeAnalysis(jobApplicationId),
+  ])
+  const [jobApplicationData, jobApplicationError] = jobApplicationResult
+  const [previousAnalysisData, previousAnalysisError] = previousAnalysisResult
 
-  if (!jobApplicationData?.resumes) {
+  if (jobApplicationError) {
     return (
       <div className="flex h-[calc(100vh-4rem)] items-center justify-center">
-        No resume found for this job application.
+        <p>Error: {jobApplicationError.message}</p>
       </div>
     )
   }
 
-  // Get previous analysis if exists
-  const previousAnalysis = await getLatestResumeAnalysis(jobApplicationId)
+  if (!jobApplicationData || !jobApplicationData.resumes) {
+    return (
+      <div className="flex h-[calc(100vh-4rem)] items-center justify-center">
+        <p>No resume found for this job application.</p>
+      </div>
+    )
+  }
+
+  if (previousAnalysisError) {
+    return (
+      <div className="flex h-[calc(100vh-4rem)] items-center justify-center">
+        <p>Error: {previousAnalysisError.message}</p>
+      </div>
+    )
+  }
 
   return (
     <TargetedResumeWrapper
       jobApplicationData={jobApplicationData}
-      previousAnalysis={previousAnalysis}
+      previousAnalysis={previousAnalysisData}
     />
   )
 }

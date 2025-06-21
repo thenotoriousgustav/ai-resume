@@ -1,6 +1,5 @@
 "use client"
 
-import { UserMetadata } from "@supabase/supabase-js"
 import {
   BadgeCheck,
   Bell,
@@ -25,10 +24,11 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from "@/components/ui/sidebar"
+import { GoogleUserMetadata } from "@/types/google-user-metadata"
 
 import SignOut from "../sign-out"
 
-export function NavUser({ user }: { user: UserMetadata }) {
+export function NavUser({ user }: { user: GoogleUserMetadata }) {
   const { isMobile } = useSidebar()
 
   return (
@@ -95,10 +95,10 @@ export function NavUser({ user }: { user: UserMetadata }) {
               </DropdownMenuItem>
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
-            <DropdownMenuItem>
+            <DropdownMenuItem asChild>
               <SignOut
                 variant={"link"}
-                className="w-full justify-start hover:bg-red-50"
+                className="w-full cursor-pointer justify-start hover:bg-red-50"
               >
                 Sign Out
               </SignOut>

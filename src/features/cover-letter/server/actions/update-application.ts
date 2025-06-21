@@ -2,6 +2,8 @@
 import { revalidatePath } from "next/cache"
 import { z } from "zod"
 
+import { getCurrentUser } from "@/server/actions/get-current-user"
+import { type ResultAsync, tryCatch } from "@/types/result"
 import { createClient } from "@/utils/supabase/server"
 
 import { coverLetterSchema } from "../../schemas/cover-letter-schema"
@@ -9,16 +11,15 @@ import { coverLetterSchema } from "../../schemas/cover-letter-schema"
 export default async function updateApplication(
   values: z.infer<typeof coverLetterSchema>,
   jobApplicationId: string
-) {
-  const supabase = await createClient()
+): ResultAsync<void, Error> {
+  return tryCatch(async () => {
+    const supabase = await createClient()
+    const [user, userError] = await getCurrentUser()
 
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
-  if (!user) {
-    throw new Error("User not authenticated")
-  }
-  try {
+    if (userError) {
+      throw userError
+    }
+
     const result = coverLetterSchema.safeParse(values)
 
     if (!result.success) {
@@ -40,11 +41,5 @@ export default async function updateApplication(
     }
 
     revalidatePath("/job-tracker")
-    return { success: true }
-  } catch (err) {
-    console.error("Error updating application:", err)
-    throw new Error(
-      `Failed to update application: ${err instanceof Error ? err.message : String(err)}`
-    )
-  }
+  })
 }

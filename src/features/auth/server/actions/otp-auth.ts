@@ -2,21 +2,21 @@
 
 import { z } from "zod"
 
+import { type ResultAsync, tryCatch } from "@/types/result"
 import { createClient } from "@/utils/supabase/server"
 
 import { authSchema } from "../../schemas/auth-schema"
 
-export default async function otpAuth(values: z.infer<typeof authSchema>) {
-  const supabase = await createClient()
+export default async function otpAuth(
+  values: z.infer<typeof authSchema>
+): ResultAsync<void, Error> {
+  return tryCatch(async () => {
+    const supabase = await createClient()
 
-  try {
     const result = authSchema.safeParse(values)
 
     if (!result.success) {
-      return {
-        status: "error",
-        message: result.error.issues[0].message,
-      }
+      throw new Error(result.error.issues[0].message)
     }
 
     const { error } = await supabase.auth.signInWithOtp({
@@ -29,21 +29,9 @@ export default async function otpAuth(values: z.infer<typeof authSchema>) {
 
     if (error) {
       console.error("Supabase error:", error)
-      return {
-        status: "error",
-        message: error.message + "Failed to send magic link. Please try again.",
-      }
+      throw new Error(
+        `${error.message} Failed to send magic link. Please try again.`
+      )
     }
-
-    return {
-      status: "success",
-      message: "Check your email for the magic link to sign in.",
-    }
-  } catch (error) {
-    console.error("Unexpected error:", error)
-    return {
-      status: "error",
-      message: "An unexpected error occurred. Please try again later." + error,
-    }
-  }
+  })
 }
