@@ -1,7 +1,16 @@
 "use client"
 
 import { format } from "date-fns"
-import { CheckIcon, ChevronDownIcon, Download, Eye, FileText, PenTool, PlusIcon, Search } from "lucide-react"
+import {
+  CheckIcon,
+  ChevronDownIcon,
+  Download,
+  Eye,
+  FileText,
+  PenTool,
+  PlusIcon,
+  Search,
+} from "lucide-react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import React, { useId, useState, useTransition } from "react"
@@ -29,10 +38,10 @@ import { DbResume, JobApplication } from "@/types/database"
 
 import updateTableCell from "../../server/actions/update-table-cell"
 
-export default function DrawerDocument({ 
-  data, 
-  resumes 
-}: { 
+export default function DrawerDocument({
+  data,
+  resumes,
+}: {
   data: JobApplication
   resumes: DbResume[]
 }) {
@@ -43,7 +52,7 @@ export default function DrawerDocument({
 
   const handleResumeChange = async (resumeId: string) => {
     if (resumeId === data.resume_id) return
-    
+
     startTransition(async () => {
       try {
         const [_, error] = await updateTableCell(data.id, "resume_id", resumeId)
@@ -62,7 +71,7 @@ export default function DrawerDocument({
 
   const ResumeSelector = () => (
     <div className="mb-4">
-      <Label htmlFor={id} className="text-sm font-medium mb-2 block">
+      <Label htmlFor={id} className="mb-2 block text-sm font-medium">
         Attached Resume
       </Label>
       <Popover open={open} onOpenChange={setOpen}>
@@ -75,10 +84,13 @@ export default function DrawerDocument({
             className="w-full justify-between px-3 font-normal"
             disabled={isPending}
           >
-            <span className={cn("truncate", !data.resumes && "text-muted-foreground")}>
-              {data.resumes 
-                ? data.resumes.title
-                : "No resume attached"}
+            <span
+              className={cn(
+                "truncate",
+                !data.resumes && "text-muted-foreground"
+              )}
+            >
+              {data.resumes ? data.resumes.title : "No resume attached"}
             </span>
             <ChevronDownIcon
               size={16}
@@ -143,9 +155,9 @@ export default function DrawerDocument({
       <h3 className="mb-4 text-sm font-semibold tracking-wide text-gray-600 uppercase">
         Associated Documents
       </h3>
-      
+
       <ResumeSelector />
-      
+
       {data.resumes ? (
         <div className="space-y-3 rounded-lg border p-4">
           <div className="flex items-center justify-between">
