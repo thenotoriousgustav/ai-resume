@@ -2,6 +2,7 @@ import React, { Suspense } from "react"
 
 import DrawerContentDetail from "@/features/job-tracker/components/detail-page/drawer-content-detail"
 import getJobApplication from "@/server/queries/get-job-application"
+import getResumes from "@/server/queries/get-resumes"
 
 import JobModalLoading from "./loading"
 
@@ -20,12 +21,23 @@ export default async function JobDetailsPageDrawer({
 }
 
 async function JobDetailsPage({ id }: { id: string }) {
-  const [jobApplication, error] = await getJobApplication(id)
+  const [jobApplicationResult, resumesResult] = await Promise.all([
+    getJobApplication(id),
+    getResumes(),
+  ])
 
-  if (error) {
-    console.error("Error fetching job application:", error)
+  const [jobApplication, jobApplicationError] = jobApplicationResult
+  const [resumes, resumesError] = resumesResult
+
+  if (jobApplicationError) {
+    console.error("Error fetching job application:", jobApplicationError)
     return null
   }
 
-  return <DrawerContentDetail data={jobApplication} />
+  if (resumesError) {
+    console.error("Error fetching resumes:", resumesError)
+    return null
+  }
+
+  return <DrawerContentDetail data={jobApplication} resumes={resumes} />
 }

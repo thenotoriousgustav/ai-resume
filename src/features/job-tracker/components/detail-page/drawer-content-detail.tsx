@@ -1,13 +1,12 @@
 "use client"
 
 import { X } from "lucide-react"
-import { useRouter } from "next/navigation"
 import React from "react"
 
 import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
+import { DrawerClose } from "@/components/ui/drawer"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { JobApplication } from "@/types/database"
+import { DbResume, JobApplication } from "@/types/database"
 
 import DrawerDocument from "./drawer-document"
 import DrawerJobDetails from "./drawer-job-details"
@@ -15,7 +14,7 @@ import DrawerTimeline from "./drawer-timeline"
 
 interface DrawerContentDetailProps {
   data: JobApplication
-  onClose?: () => void // Optional prop untuk custom close handler
+  resumes: DbResume[]
 }
 
 function getStatusColor(status: string | null) {
@@ -48,18 +47,8 @@ function getPriorityColor(priority: string | null) {
 
 export default function DrawerContentDetail({
   data,
-  onClose,
+  resumes,
 }: DrawerContentDetailProps) {
-  const router = useRouter()
-
-  const handleClose = () => {
-    if (onClose) {
-      onClose()
-    } else {
-      // Fallback untuk halaman detail biasa
-      router.back()
-    }
-  }
   return (
     <div>
       <div className="flex items-center justify-between">
@@ -86,13 +75,9 @@ export default function DrawerContentDetail({
             </Badge>
           )}
 
-          {/* <DrawerClose className="cursor-pointer">
+          <DrawerClose className="cursor-pointer">
             <X className="h-4 w-4" />
-          </DrawerClose> */}
-
-          <Button className="p-2" variant="ghost" onClick={handleClose}>
-            <X className="h-4 w-4" />
-          </Button>
+          </DrawerClose>
         </div>
       </div>
 
@@ -109,7 +94,7 @@ export default function DrawerContentDetail({
           </TabsContent>
 
           <TabsContent value="documents" className="mt-6 space-y-4">
-            <DrawerDocument data={data} />
+            <DrawerDocument data={data} resumes={resumes} />
           </TabsContent>
 
           <TabsContent value="timeline" className="mt-6 space-y-4">

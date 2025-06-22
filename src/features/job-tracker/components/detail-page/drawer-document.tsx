@@ -1,18 +1,151 @@
+"use client"
+
 import { format } from "date-fns"
-import { Download, Eye, FileText, PenTool, Search } from "lucide-react"
+import { CheckIcon, ChevronDownIcon, Download, Eye, FileText, PenTool, PlusIcon, Search } from "lucide-react"
 import Link from "next/link"
-import React from "react"
+import { useRouter } from "next/navigation"
+import React, { useId, useState, useTransition } from "react"
+import { toast } from "sonner"
 
 import { Button } from "@/components/ui/button"
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+  CommandSeparator,
+} from "@/components/ui/command"
+import { Label } from "@/components/ui/label"
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover"
 import { Separator } from "@/components/ui/separator"
-import { JobApplication } from "@/types/database"
+import { cn } from "@/lib/utils"
+import { DbResume, JobApplication } from "@/types/database"
 
-export default function DrawerDocument({ data }: { data: JobApplication }) {
+import updateTableCell from "../../server/actions/update-table-cell"
+
+export default function DrawerDocument({ 
+  data, 
+  resumes 
+}: { 
+  data: JobApplication
+  resumes: DbResume[]
+}) {
+  const id = useId()
+  const router = useRouter()
+  const [open, setOpen] = useState(false)
+  const [isPending, startTransition] = useTransition()
+
+  const handleResumeChange = async (resumeId: string) => {
+    if (resumeId === data.resume_id) return
+    
+    startTransition(async () => {
+      try {
+        const [_, error] = await updateTableCell(data.id, "resume_id", resumeId)
+        if (error) {
+          toast.error("Failed to update resume")
+        } else {
+          toast.success("Resume updated successfully")
+          router.refresh()
+        }
+      } catch (error) {
+        console.error("Failed to update resume:", error)
+        toast.error("Failed to update resume")
+      }
+    })
+  }
+
+  const ResumeSelector = () => (
+    <div className="mb-4">
+      <Label htmlFor={id} className="text-sm font-medium mb-2 block">
+        Attached Resume
+      </Label>
+      <Popover open={open} onOpenChange={setOpen}>
+        <PopoverTrigger asChild>
+          <Button
+            id={id}
+            variant="outline"
+            role="combobox"
+            aria-expanded={open}
+            className="w-full justify-between px-3 font-normal"
+            disabled={isPending}
+          >
+            <span className={cn("truncate", !data.resumes && "text-muted-foreground")}>
+              {data.resumes 
+                ? data.resumes.title
+                : "No resume attached"}
+            </span>
+            <ChevronDownIcon
+              size={16}
+              className="text-muted-foreground/80 shrink-0"
+              aria-hidden="true"
+            />
+          </Button>
+        </PopoverTrigger>
+        <PopoverContent
+          className="w-full min-w-[var(--radix-popper-anchor-width)] p-0"
+          align="start"
+        >
+          <Command>
+            <CommandInput placeholder="Find resume..." />
+            <CommandList>
+              <CommandEmpty>No resume found.</CommandEmpty>
+              {resumes.length > 0 && (
+                <CommandGroup>
+                  {resumes.map((resume) => (
+                    <CommandItem
+                      key={resume.id}
+                      value={resume.title}
+                      onSelect={() => {
+                        handleResumeChange(resume.id)
+                        setOpen(false)
+                      }}
+                      className="flex items-center gap-2"
+                    >
+                      <FileText className="h-4 w-4 text-blue-600" />
+                      <span className="flex-1 truncate">{resume.title}</span>
+                      {data.resume_id === resume.id && (
+                        <CheckIcon size={16} className="ml-auto" />
+                      )}
+                    </CommandItem>
+                  ))}
+                </CommandGroup>
+              )}
+              <CommandSeparator />
+              <CommandGroup>
+                <Button
+                  variant="ghost"
+                  className="w-full justify-start font-normal"
+                  onClick={() => window.open("/documents", "_blank")}
+                >
+                  <PlusIcon
+                    size={16}
+                    className="-ms-2 opacity-60"
+                    aria-hidden="true"
+                  />
+                  Upload new resume
+                </Button>
+              </CommandGroup>
+            </CommandList>
+          </Command>
+        </PopoverContent>
+      </Popover>
+    </div>
+  )
+
   return (
     <div>
       <h3 className="mb-4 text-sm font-semibold tracking-wide text-gray-600 uppercase">
         Associated Documents
       </h3>
+      
+      <ResumeSelector />
+      
       {data.resumes ? (
         <div className="space-y-3 rounded-lg border p-4">
           <div className="flex items-center justify-between">

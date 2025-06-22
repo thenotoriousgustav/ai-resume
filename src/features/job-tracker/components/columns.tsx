@@ -6,7 +6,6 @@ import {
   Ellipsis,
   Eye,
   FileText,
-  Star,
   Text,
   Trash2,
 } from "lucide-react"
@@ -25,12 +24,10 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { DescriptionCell } from "@/features/job-tracker/components/cell/description-cell"
-import { FavoriteCell } from "@/features/job-tracker/components/cell/favorite-cell"
 import { ResumeCell } from "@/features/job-tracker/components/cell/resume-cell"
 import { TextCell } from "@/features/job-tracker/components/cell/text-cell"
 import { getBadgeVariantByPriority } from "@/features/job-tracker/lib/priority-badge"
 import { getBadgeVariantByStatus } from "@/features/job-tracker/lib/status-badge"
-import { cn } from "@/lib/utils"
 import { DataTableRowAction } from "@/types/data-table"
 import { JobApplication } from "@/types/database"
 import { Database } from "@/types/supabase-types"
@@ -80,55 +77,6 @@ export default function getColumnsJob({
       enableSorting: false,
       enableHiding: false,
       size: 40,
-    },
-    {
-      id: "is_favorite",
-      accessorKey: "is_favorite",
-      meta: {
-        label: "Favorite",
-      },
-      enableColumnFilter: true,
-      enableSorting: true,
-      size: 50,
-      filterFn: (row, id, value) => {
-        return value.includes(row.getValue(id))
-      },
-      header: ({ column }) => {
-        const isSorted = column.getIsSorted() // "asc" | "desc" | false
-
-        const handleSortToggle = () => {
-          if (isSorted === false) {
-            column.toggleSorting(false) // sort ascending
-          } else if (isSorted === "asc") {
-            column.toggleSorting(true) // sort descending
-          } else {
-            column.clearSorting() // remove sorting
-          }
-        }
-
-        return (
-          <Button
-            variant="ghost"
-            onClick={handleSortToggle}
-            title="Sort by favorite"
-            className="m-0 p-0"
-          >
-            <Star
-              className={cn(
-                "h-4 w-4 transition-colors",
-                isSorted === "asc" && "text-yellow-500",
-                isSorted === "desc" && "fill-yellow-500 text-yellow-500",
-                isSorted === false && "text-slate-400"
-              )}
-            />
-          </Button>
-        )
-      },
-      cell: (props) => {
-        return (
-          <FavoriteCell {...(props as CellContext<JobApplication, boolean>)} />
-        )
-      },
     },
     {
       id: "position",

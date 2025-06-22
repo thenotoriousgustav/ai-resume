@@ -2,9 +2,11 @@
 
 import { CellContext } from "@tanstack/react-table"
 import { format } from "date-fns"
+import { enUS } from "date-fns/locale"
 import { CalendarIcon } from "lucide-react"
 import { JSX, startTransition } from "react"
 import { useForm } from "react-hook-form"
+import { toast } from "sonner"
 
 import { Button } from "@/components/ui/button"
 import { Calendar } from "@/components/ui/calendar"
@@ -23,7 +25,16 @@ export const DateCell = ({
   row,
   column,
 }: CellContext<JobApplication, string>): JSX.Element => {
-  const initialDate = getValue() ? new Date(getValue()) : undefined
+  // Parse date string correctly to avoid timezone issues
+  const parseDateString = (dateString: string | null): Date | undefined => {
+    if (!dateString) return undefined
+
+    // Parse YYYY-MM-DD format directly without timezone conversion
+    const [year, month, day] = dateString.split("-").map(Number)
+    return new Date(year, month - 1, day) // month is 0-indexed
+  }
+
+  const initialDate = parseDateString(getValue())
   const rowId = row.original.id
   const columnId = column.id
 
@@ -36,9 +47,27 @@ export const DateCell = ({
 
   const handleChange = (date: Date | undefined) => {
     if (!date) return
+
     form.setValue(columnId, date)
     startTransition(async () => {
-      await updateTableCell(rowId, columnId, date.toISOString())
+      try {
+        // Format date to YYYY-MM-DD without timezone conversion
+        const year = date.getFullYear()
+        const month = String(date.getMonth() + 1).padStart(2, "0")
+        const day = String(date.getDate()).padStart(2, "0")
+        const dateString = `${year}-${month}-${day}`
+
+        const [_, error] = await updateTableCell(rowId, columnId, dateString)
+
+        if (error) {
+          toast.error("Failed to update date")
+        } else {
+          toast.success("Date updated successfully")
+        }
+      } catch (error) {
+        console.error("Failed to update date:", error)
+        toast.error("Failed to update date")
+      }
     })
   }
 
@@ -61,7 +90,9 @@ export const DateCell = ({
                         <CalendarIcon className="h-4 w-4" />
                         <span>
                           {field.value
-                            ? format(field.value, "PPP")
+                            ? format(field.value, "dd MMMM yyyy", {
+                                locale: enUS,
+                              })
                             : "Pilih tanggal"}
                         </span>
                       </span>

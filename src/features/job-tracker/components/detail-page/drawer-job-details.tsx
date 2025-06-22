@@ -1,6 +1,7 @@
 import { useRouter } from "next/navigation"
-import React, { useCallback, useEffect, useRef } from "react"
+import React, { useRef } from "react"
 import { useForm } from "react-hook-form"
+import { toast } from "sonner"
 
 import {
   Form,
@@ -27,7 +28,6 @@ import updateJobDetail from "../../server/actions/update-job-detail"
 export default function DrawerJobDetails({ data }: { data: JobApplication }) {
   const router = useRouter()
   const originalDataRef = useRef(data)
-  const hasUnsavedChanges = useRef(false)
 
   const form = useForm<UpdateJobApplicationSchema>({
     defaultValues: {
@@ -42,54 +42,33 @@ export default function DrawerJobDetails({ data }: { data: JobApplication }) {
     },
   })
 
-  // Save all pending changes when component unmounts (drawer closes)
-  useEffect(() => {
-    return () => {
-      // Always save when drawer closes, regardless of hasUnsavedChanges
-      const currentValues = form.getValues()
-      const changedFields: Array<{ field: string; value: string }> = []
+  // Handle save on blur for individual fields
+  const handleFieldBlur = async (fieldName: string, value: string | number) => {
+    const originalValue =
+      originalDataRef.current[fieldName as keyof JobApplication]
 
-      // Check each field for changes
-      Object.keys(currentValues).forEach((field) => {
-        const currentValue =
-          currentValues[field as keyof UpdateJobApplicationSchema]
-        const originalValue =
-          originalDataRef.current[field as keyof JobApplication]
+    // Convert values to comparable format
+    const normalizedCurrentValue = value === "" || value === 0 ? null : value
+    const normalizedOriginalValue =
+      originalValue === "" || originalValue === 0 ? null : originalValue
 
-        // Convert values to comparable format
-        const normalizedCurrentValue =
-          currentValue === "" || currentValue === 0 ? null : currentValue
-        const normalizedOriginalValue =
-          originalValue === "" || originalValue === 0 ? null : originalValue
-
-        if (normalizedCurrentValue !== normalizedOriginalValue) {
-          changedFields.push({ field, value: String(currentValue || "") })
+    // Only save if value has changed
+    if (normalizedCurrentValue !== normalizedOriginalValue) {
+      try {
+        await updateJobDetail(data.id, fieldName, String(value || ""))
+        // Update the original data reference to reflect the saved value
+        originalDataRef.current = {
+          ...originalDataRef.current,
+          [fieldName]: value,
         }
-      })
-
-      // Save all changed fields when drawer closes
-      if (changedFields.length > 0) {
-        // Use Promise.all to save all changes
-        Promise.all(
-          changedFields.map(async ({ field, value }) => {
-            try {
-              await updateJobDetail(data.id, field, value)
-            } catch (error) {
-              console.error(`Failed to save ${field}:`, error)
-            }
-          })
-        ).then(() => {
-          // Refresh the page data after all saves are complete
-          router.refresh()
-        })
+        toast.success(`${fieldName} updated successfully`)
+        router.refresh()
+      } catch (error) {
+        console.error(`Failed to save ${fieldName}:`, error)
+        toast.error(`Failed to update ${fieldName}`)
       }
     }
-  }, [data.id, form])
-
-  // Simple field change handler that only marks changes
-  const handleFieldChange = useCallback(() => {
-    hasUnsavedChanges.current = true
-  }, [])
+  }
 
   return (
     <Form {...form}>
@@ -105,10 +84,7 @@ export default function DrawerJobDetails({ data }: { data: JobApplication }) {
                   <Input
                     {...field}
                     placeholder="Enter position title"
-                    onChange={(e) => {
-                      field.onChange(e)
-                      handleFieldChange()
-                    }}
+                    onBlur={(e) => handleFieldBlur("position", e.target.value)}
                   />
                 </FormControl>
                 <FormMessage />
@@ -125,10 +101,7 @@ export default function DrawerJobDetails({ data }: { data: JobApplication }) {
                   <Input
                     {...field}
                     placeholder="Enter company name"
-                    onChange={(e) => {
-                      field.onChange(e)
-                      handleFieldChange()
-                    }}
+                    onBlur={(e) => handleFieldBlur("company", e.target.value)}
                   />
                 </FormControl>
                 <FormMessage />
@@ -150,10 +123,7 @@ export default function DrawerJobDetails({ data }: { data: JobApplication }) {
                   <Input
                     {...field}
                     placeholder="Enter job location"
-                    onChange={(e) => {
-                      field.onChange(e)
-                      handleFieldChange()
-                    }}
+                    onBlur={(e) => handleFieldBlur("location", e.target.value)}
                   />
                 </FormControl>
                 <FormMessage />
@@ -173,10 +143,7 @@ export default function DrawerJobDetails({ data }: { data: JobApplication }) {
                   <Input
                     {...field}
                     placeholder="e.g., $80,000 - $100,000"
-                    onChange={(e) => {
-                      field.onChange(e)
-                      handleFieldChange()
-                    }}
+                    onBlur={(e) => handleFieldBlur("salary", e.target.value)}
                   />
                 </FormControl>
                 <FormMessage />
@@ -195,7 +162,7 @@ export default function DrawerJobDetails({ data }: { data: JobApplication }) {
                 <Select
                   onValueChange={(value) => {
                     field.onChange(value)
-                    handleFieldChange()
+                    handleFieldBlur("status", value)
                   }}
                   value={field.value}
                 >
@@ -226,7 +193,7 @@ export default function DrawerJobDetails({ data }: { data: JobApplication }) {
                 <Select
                   onValueChange={(value) => {
                     field.onChange(value)
-                    handleFieldChange()
+                    handleFieldBlur("priority", value)
                   }}
                   value={field.value}
                 >
@@ -255,7 +222,7 @@ export default function DrawerJobDetails({ data }: { data: JobApplication }) {
                 <Select
                   onValueChange={(value) => {
                     field.onChange(value)
-                    handleFieldChange()
+                    handleFieldBlur("job_type", value)
                   }}
                   value={field.value}
                 >
@@ -292,10 +259,7 @@ export default function DrawerJobDetails({ data }: { data: JobApplication }) {
                   {...field}
                   placeholder="Enter job description, requirements, and any additional notes..."
                   className="h-64 resize-none overflow-y-auto"
-                  onChange={(e) => {
-                    field.onChange(e)
-                    handleFieldChange()
-                  }}
+                  onBlur={(e) => handleFieldBlur("description", e.target.value)}
                 />
               </FormControl>
               <FormMessage />
@@ -304,7 +268,7 @@ export default function DrawerJobDetails({ data }: { data: JobApplication }) {
         />
 
         <div className="text-muted-foreground text-center text-xs">
-          Changes are automatically saved when you close this drawer
+          Changes are automatically saved when you finish editing each field
         </div>
       </form>
     </Form>

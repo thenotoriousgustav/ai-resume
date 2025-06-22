@@ -1,23 +1,26 @@
 "use client"
 
 import { CellContext } from "@tanstack/react-table"
-import { FileText } from "lucide-react"
-import Link from "next/link"
+import { CheckIcon, ChevronDownIcon, FileText, PlusIcon } from "lucide-react"
 import { useRouter } from "next/navigation"
-import React, { JSX, useEffect, useState, useTransition } from "react"
+import React, { JSX, useId, useState, useTransition } from "react"
 import { toast } from "sonner"
 
 import { Button } from "@/components/ui/button"
-import { Card, CardContent } from "@/components/ui/card"
 import {
-  Drawer,
-  DrawerContent,
-  DrawerFooter,
-  DrawerHeader,
-  DrawerTitle,
-  DrawerTrigger,
-} from "@/components/ui/drawer"
-import { ScrollArea } from "@/components/ui/scroll-area"
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+  CommandSeparator,
+} from "@/components/ui/command"
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover"
 import { DbResume, JobApplication } from "@/types/database"
 
 import updateTableCell from "../../server/actions/update-table-cell"
@@ -32,140 +35,124 @@ export const ResumeCell = ({
   column,
   resumes,
 }: ResumeCellProps): JSX.Element => {
+  const id = useId()
   const currentValue = getValue() || null
   const router = useRouter()
 
   const rowId = row.original.id
   const columnId = column.id
 
-  const [isOpen, setIsOpen] = useState(false)
-  const [selectedResumeId, setSelectedResumeId] = useState<string | null>(
-    rowId || null
-  )
+  const [open, setOpen] = useState(false)
 
   const [isPending, startTransition] = useTransition()
 
   const handleSubmit = async (resumeId: string) => {
     startTransition(async () => {
       const [_, error] = await updateTableCell(rowId, columnId, resumeId)
-      toast.success("Resume assigned to job application")
-
-      router.refresh()
-      setSelectedResumeId(resumeId)
 
       if (error) {
         toast.error("Failed to assign resume")
+      } else {
+        toast.success("Resume assigned to job application")
+        router.refresh()
       }
     })
   }
 
-  useEffect(() => {
-    if (!isPending) {
-      setIsOpen(false)
+  const handleSelect = (resumeTitle: string) => {
+    const selectedResume = resumes.find(
+      (resume) => resume.title === resumeTitle
+    )
+    if (selectedResume) {
+      setOpen(false)
+      if (selectedResume.id !== currentValue) {
+        handleSubmit(selectedResume.id)
+      }
     }
-  }, [isPending])
+  }
+
+  const selectedResume = resumes.find((resume) => resume.id === currentValue)
 
   return (
-    <Drawer open={isOpen} onOpenChange={setIsOpen} direction="right">
-      <DrawerTrigger asChild>
+    <Popover open={open} onOpenChange={setOpen}>
+      <PopoverTrigger asChild>
         <Button
+          id={id}
           variant="ghost"
+          role="combobox"
+          aria-expanded={open}
           size="sm"
-          className="w-full cursor-pointer justify-start px-2"
+          className="w-full justify-start px-2 font-normal outline-offset-0 outline-none focus-visible:outline-[3px]"
+          disabled={isPending}
         >
-          {row.original.resumes ? (
+          {selectedResume ? (
             <div className="flex items-center text-blue-600">
               <FileText className="mr-2 h-4 w-4" />
               <span className="max-w-[150px] truncate">
-                {row.original.resumes.title}
+                {selectedResume.title}
               </span>
             </div>
           ) : (
             <div className="flex items-center text-gray-500">
               <FileText className="mr-2 h-4 w-4" />
-              <span className="max-w-[150px] truncate">No resume attached</span>
+              <span className="max-w-[150px] truncate">
+                {isPending ? "Updating..." : "No resume attached"}
+              </span>
             </div>
           )}
+          <ChevronDownIcon
+            size={16}
+            className="text-muted-foreground/80 ml-auto shrink-0"
+            aria-hidden="true"
+          />
         </Button>
-      </DrawerTrigger>
-
-      <DrawerContent>
-        <DrawerHeader>
-          <DrawerTitle>Select Resume for Application</DrawerTitle>
-        </DrawerHeader>
-
-        {resumes.length === 0 ? (
-          <div className="py-6 text-center">
-            <FileText className="mx-auto mb-2 h-12 w-12 text-gray-400" />
-            <h3 className="mb-1 font-medium">No resumes available</h3>
-            <p className="mb-4 text-sm text-gray-500">
-              Upload a resume first to attach it to this application
-            </p>
-            <Button
-              onClick={() => window.open("/documents", "_blank")}
-              className="mx-auto"
-            >
-              Upload Resume
-            </Button>
-          </div>
-        ) : (
-          <ScrollArea className="max-h-[60vh]">
-            <div className="space-y-2 py-2">
-              {resumes.map((resume) => (
-                <Card
-                  key={resume.id}
-                  className={`cursor-pointer transition-colors hover:bg-slate-50 ${
-                    selectedResumeId === resume.id
-                      ? "border-blue-500 bg-blue-50"
-                      : ""
-                  } ${isPending ? "pointer-events-none opacity-50" : ""}`}
-                  onClick={() => !isPending && setSelectedResumeId(resume.id)}
-                >
-                  <CardContent className="p-3">
-                    <div className="flex items-center gap-3">
-                      <FileText className="h-5 w-5 text-blue-600" />
-                      <div className="min-w-0 flex-1">
-                        <p className="font-medium">{resume.title}</p>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          </ScrollArea>
-        )}
-
-        <DrawerFooter className="flex flex-row items-center justify-between gap-2 p-4">
-          <div className="flex gap-2">
-            {selectedResumeId && (
-              <Button
-                size="sm"
-                variant="outline"
-                className="cursor-pointer"
-                asChild
-              >
-                <Link href={`analyze/${selectedResumeId}`}>Analyze</Link>
-              </Button>
+      </PopoverTrigger>
+      <PopoverContent
+        className="border-input w-full min-w-[var(--radix-popper-anchor-width)] p-0"
+        align="start"
+      >
+        <Command>
+          <CommandInput placeholder="Find resume..." />
+          <CommandList>
+            <CommandEmpty>No resume found.</CommandEmpty>
+            {resumes.length > 0 && (
+              <CommandGroup>
+                {resumes.map((resume) => (
+                  <CommandItem
+                    key={resume.id}
+                    value={resume.title}
+                    onSelect={(value) => handleSelect(value)}
+                    className="flex items-center gap-2"
+                  >
+                    <FileText className="h-4 w-4 text-blue-600" />
+                    <span className="flex-1 truncate">{resume.title}</span>
+                    {currentValue === resume.id && (
+                      <CheckIcon size={16} className="ml-auto" />
+                    )}
+                  </CommandItem>
+                ))}
+              </CommandGroup>
             )}
-          </div>
-
-          <Button
-            onClick={() => selectedResumeId && handleSubmit(selectedResumeId)}
-            disabled={
-              !selectedResumeId ||
-              selectedResumeId === currentValue ||
-              isPending
-            }
-            className="cursor-pointer"
-          >
-            {isPending
-              ? "Updating..."
-              : selectedResumeId === currentValue
-                ? "Current Selection"
-                : "Select Resume"}
-          </Button>
-        </DrawerFooter>
-      </DrawerContent>
-    </Drawer>
+            <CommandSeparator />
+            <CommandGroup>
+              <CommandItem asChild>
+                <Button
+                  variant="ghost"
+                  className="w-full justify-start font-normal"
+                  onClick={() => window.open("/documents", "_blank")}
+                >
+                  <PlusIcon
+                    size={16}
+                    className="-ms-2 opacity-60"
+                    aria-hidden="true"
+                  />
+                  Upload new resume
+                </Button>
+              </CommandItem>
+            </CommandGroup>
+          </CommandList>
+        </Command>
+      </PopoverContent>
+    </Popover>
   )
 }
