@@ -45,9 +45,9 @@ export default function JobTable({
     throw resumesError
   }
 
-  const data = jobApplicationsData?.data || []
-  const pageCount = jobApplicationsData?.pageCount || 0
-  const resumes = resumesData || []
+  const data = jobApplicationsData.data
+  const pageCount = jobApplicationsData.pageCount || 0
+  const resumes = resumesData
 
   const [rowAction, setRowAction] =
     React.useState<DataTableRowAction<JobApplication> | null>(null)

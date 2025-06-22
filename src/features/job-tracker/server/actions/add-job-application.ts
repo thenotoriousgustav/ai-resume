@@ -14,6 +14,7 @@ export default async function addJobApplication(
 ): ResultAsync<void, Error> {
   return tryCatch(async () => {
     const supabase = await createClient()
+
     const [user, userError] = await getCurrentUser()
 
     if (userError) {

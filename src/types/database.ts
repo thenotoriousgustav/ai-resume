@@ -11,6 +11,13 @@ export type JobApplication = DbJobApplication & {
   resumes: DbResume | null
 }
 
+export type JobApplicationLimited = DbJobApplication & {
+  resumes: {
+    id: string
+    title: string
+  } | null
+}
+
 export type JobApplicationWithResumes = DbJobApplication & {
   resumes: DbResume[]
 }

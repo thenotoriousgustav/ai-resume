@@ -37,7 +37,7 @@ const PAGE_KEY = "page"
 const PER_PAGE_KEY = "perPage"
 const SORT_KEY = "sort"
 const ARRAY_SEPARATOR = ","
-const DEBOUNCE_MS = 300
+const DEBOUNCE_MS = 150
 const THROTTLE_MS = 50
 const COLUMN_VISIBILITY_COOKIE_MAX_AGE = 60 * 60 * 24 * 30 // 30 days
 
