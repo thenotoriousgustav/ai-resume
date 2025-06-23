@@ -19,9 +19,9 @@ import {
 } from "@/components/ui/select"
 import { Separator } from "@/components/ui/separator"
 import {
-  JobApplication,
   JobApplicationPriority,
   JobApplicationStatus,
+  JobApplicationTableData,
 } from "@/types/database"
 
 import deleteJobs from "../server/actions/delete-jobs"
@@ -48,7 +48,7 @@ const priorityOptions = [
 ] as const
 
 interface JobsTableActionBarProps {
-  table: Table<JobApplication>
+  table: Table<JobApplicationTableData>
 }
 
 export function TableActionBar({ table }: JobsTableActionBarProps) {
@@ -67,7 +67,9 @@ export function TableActionBar({ table }: JobsTableActionBarProps) {
       value,
     }: {
       field: "status" | "priority"
-      value: JobApplication["status"] | JobApplication["priority"]
+      value:
+        | JobApplicationTableData["status"]
+        | JobApplicationTableData["priority"]
     }) => {
       setCurrentAction(field === "status" ? "update-status" : "update-priority")
 

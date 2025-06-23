@@ -6,7 +6,7 @@ import { useForm } from "react-hook-form"
 
 import { Form, FormControl, FormField, FormItem } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
-import { JobApplication } from "@/types/database"
+import { JobApplicationTableData } from "@/types/database"
 
 import updateTableCell from "../../server/actions/update-table-cell"
 
@@ -14,7 +14,7 @@ export const TextCell = ({
   getValue,
   row,
   column,
-}: CellContext<JobApplication, string>): JSX.Element => {
+}: CellContext<JobApplicationTableData, string>): JSX.Element => {
   const initialValue = getValue() ?? ""
 
   const [value, setValue] = useState(initialValue)

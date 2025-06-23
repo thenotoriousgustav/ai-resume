@@ -37,6 +37,7 @@ export default async function addJobApplication(
       status,
       priority,
       job_type,
+      source_url,
     } = valuesResult.data
 
     const { error: dbError } = await supabase.from("job_applications").insert([
@@ -49,9 +50,10 @@ export default async function addJobApplication(
         description: description || "",
         status: status || null,
         priority: priority || null,
-        job_type: job_type || null,
+        job_type: job_type || undefined,
         country: "",
         currency: "USD",
+        source_url: source_url || null,
         applied_at: new Date().toISOString(),
       },
     ])

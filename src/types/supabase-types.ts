@@ -34,72 +34,67 @@ export type Database = {
           job_application_id?: string
           updated_at?: string | null
         }
-        Relationships: [
-          {
-            foreignKeyName: "cover_letters_job_application_id_fkey"
-            columns: ["job_application_id"]
-            isOneToOne: false
-            referencedRelation: "job_applications"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       job_applications: {
         Row: {
           applied_at: string | null
           company: string
           country: string
-          created_at: string | null
+          created_at: string
           currency: string
           description: string
           id: string
           is_favorite: boolean
-          job_type: Database["public"]["Enums"]["job_type"] | null
+          job_type: Database["public"]["Enums"]["job_type"]
           location: string
           position: string
           priority: Database["public"]["Enums"]["job_priority"] | null
           resume_id: string | null
           salary: number | null
+          source_url: string | null
           status: Database["public"]["Enums"]["job_status"] | null
-          updated_at: string | null
+          updated_at: string
           user_id: string
         }
         Insert: {
           applied_at?: string | null
-          company?: string
+          company: string
           country?: string
-          created_at?: string | null
+          created_at?: string
           currency?: string
           description?: string
           id?: string
           is_favorite?: boolean
-          job_type?: Database["public"]["Enums"]["job_type"] | null
-          location?: string
-          position?: string
+          job_type?: Database["public"]["Enums"]["job_type"]
+          location: string
+          position: string
           priority?: Database["public"]["Enums"]["job_priority"] | null
           resume_id?: string | null
           salary?: number | null
+          source_url?: string | null
           status?: Database["public"]["Enums"]["job_status"] | null
-          updated_at?: string | null
+          updated_at?: string
           user_id: string
         }
         Update: {
           applied_at?: string | null
           company?: string
           country?: string
-          created_at?: string | null
+          created_at?: string
           currency?: string
           description?: string
           id?: string
           is_favorite?: boolean
-          job_type?: Database["public"]["Enums"]["job_type"] | null
+          job_type?: Database["public"]["Enums"]["job_type"]
           location?: string
           position?: string
           priority?: Database["public"]["Enums"]["job_priority"] | null
           resume_id?: string | null
           salary?: number | null
+          source_url?: string | null
           status?: Database["public"]["Enums"]["job_status"] | null
-          updated_at?: string | null
+          updated_at?: string
           user_id?: string
         }
         Relationships: [
@@ -158,57 +153,52 @@ export type Database = {
           updated_at?: string | null
           user_id?: string
         }
-        Relationships: [
-          {
-            foreignKeyName: "resume_general_analysis_resume_id_fkey"
-            columns: ["resume_id"]
-            isOneToOne: false
-            referencedRelation: "resumes"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       resumes: {
         Row: {
-          created_at: string | null
+          created_at: string
           description: string
           extracted_text: string | null
           file_name: string
           file_size: number
           file_type: string
           id: string
+          is_active: boolean
           storage_path: string
           storage_url: string
           title: string
-          updated_at: string | null
+          updated_at: string
           user_id: string
         }
         Insert: {
-          created_at?: string | null
+          created_at?: string
           description?: string
           extracted_text?: string | null
           file_name: string
           file_size: number
           file_type: string
           id?: string
+          is_active?: boolean
           storage_path: string
           storage_url: string
           title: string
-          updated_at?: string | null
+          updated_at?: string
           user_id: string
         }
         Update: {
-          created_at?: string | null
+          created_at?: string
           description?: string
           extracted_text?: string | null
           file_name?: string
           file_size?: number
           file_type?: string
           id?: string
+          is_active?: boolean
           storage_path?: string
           storage_url?: string
           title?: string
-          updated_at?: string | null
+          updated_at?: string
           user_id?: string
         }
         Relationships: []
@@ -298,22 +288,7 @@ export type Database = {
           suggestions?: Json | null
           updated_at?: string | null
         }
-        Relationships: [
-          {
-            foreignKeyName: "resume_analysis_job_application_id_fkey"
-            columns: ["job_application_id"]
-            isOneToOne: false
-            referencedRelation: "job_applications"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "resume_analysis_resume_id_fkey"
-            columns: ["resume_id"]
-            isOneToOne: false
-            referencedRelation: "resumes"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
     }
     Views: {

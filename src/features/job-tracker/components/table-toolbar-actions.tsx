@@ -3,12 +3,12 @@
 import type { Table } from "@tanstack/react-table"
 import React from "react"
 
-import { JobApplication } from "@/types/database"
+import { JobApplicationTableData } from "@/types/database"
 
 import { DeleteJobDialog } from "./delete-job-dialog"
 
 interface JobsTableToolbarActionsProps {
-  table: Table<JobApplication>
+  table: Table<JobApplicationTableData>
 }
 
 export function JobsTableToolbarActions({

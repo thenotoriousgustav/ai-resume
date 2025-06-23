@@ -22,17 +22,6 @@ export default async function DocumentList() {
     )
   }
 
-  if (!resumes || resumes.length === 0) {
-    return (
-      <div className="grid grid-cols-1 gap-6 p-4 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4">
-        <DocumentUploadCard />
-        <div className="col-span-full p-8 text-center text-gray-500">
-          <p>No documents found. Upload your first resume to get started!</p>
-        </div>
-      </div>
-    )
-  }
-
   return (
     <div className="grid grid-cols-1 gap-6 p-4 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4">
       <DocumentUploadCard />

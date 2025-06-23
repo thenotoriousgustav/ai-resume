@@ -14,7 +14,7 @@ import {
 import { JobTypeBadgeVariant } from "@/features/job-tracker/lib/job-type-badge"
 import { PriorityBadgeVariant } from "@/features/job-tracker/lib/priority-badge"
 import { StatusBadgeVariant } from "@/features/job-tracker/lib/status-badge"
-import { JobApplication } from "@/types/database"
+import { JobApplicationTableData } from "@/types/database"
 
 import updateTableCell from "../../server/actions/update-table-cell"
 
@@ -29,7 +29,7 @@ export const SelectCell = ({
   column,
   options,
   variantGetter,
-}: CellContext<JobApplication, string> & {
+}: CellContext<JobApplicationTableData, string> & {
   options: { label: string; value: string }[]
   variantGetter?: (value: string) => BadgeVariant
 }): JSX.Element => {

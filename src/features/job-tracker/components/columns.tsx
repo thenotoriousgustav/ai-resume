@@ -23,14 +23,11 @@ import {
   DropdownMenuShortcut,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { DescriptionCell } from "@/features/job-tracker/components/cell/description-cell"
-import { ResumeCell } from "@/features/job-tracker/components/cell/resume-cell"
 import { TextCell } from "@/features/job-tracker/components/cell/text-cell"
 import { getBadgeVariantByPriority } from "@/features/job-tracker/lib/priority-badge"
 import { getBadgeVariantByStatus } from "@/features/job-tracker/lib/status-badge"
 import { DataTableRowAction } from "@/types/data-table"
-import { JobApplication } from "@/types/database"
-import { Database } from "@/types/supabase-types"
+import { JobApplicationTableData } from "@/types/database"
 
 import { jobTypeOptions, priorityOptions, statusOptions } from "../lib/data"
 import { getBadgeVariantByJobType } from "../lib/job-type-badge"
@@ -39,19 +36,15 @@ import { DateCell } from "./cell/date-cell"
 import { SalaryCell } from "./cell/salary-cell"
 import { SelectCell } from "./cell/select-cell"
 
-type Resume = Database["public"]["Tables"]["resumes"]["Row"]
-
 interface GetJobsTableColumnsProps {
   setRowAction: React.Dispatch<
-    React.SetStateAction<DataTableRowAction<JobApplication> | null>
+    React.SetStateAction<DataTableRowAction<JobApplicationTableData> | null>
   >
-  resumes: Resume[]
 }
 
 export default function getColumnsJob({
   setRowAction,
-  resumes,
-}: GetJobsTableColumnsProps): ColumnDef<JobApplication>[] {
+}: GetJobsTableColumnsProps): ColumnDef<JobApplicationTableData>[] {
   return [
     {
       id: "select",
@@ -96,7 +89,6 @@ export default function getColumnsJob({
         return (
           <Link
             href={`/job-tracker/${props.row.original.id}`}
-            prefetch={false}
             className="block font-semibold hover:underline"
           >
             {props.row.original.position}
@@ -119,7 +111,11 @@ export default function getColumnsJob({
         <DataTableColumnHeader column={column} title="Company" />
       ),
       cell: (props) => {
-        return <TextCell {...(props as CellContext<JobApplication, string>)} />
+        return (
+          <TextCell
+            {...(props as CellContext<JobApplicationTableData, string>)}
+          />
+        )
       },
     },
 
@@ -137,7 +133,11 @@ export default function getColumnsJob({
         <DataTableColumnHeader column={column} title="Location" />
       ),
       cell: (props) => {
-        return <TextCell {...(props as CellContext<JobApplication, string>)} />
+        return (
+          <TextCell
+            {...(props as CellContext<JobApplicationTableData, string>)}
+          />
+        )
       },
     },
     {
@@ -153,7 +153,7 @@ export default function getColumnsJob({
       cell: (props) => {
         return (
           <SalaryCell
-            {...(props as CellContext<JobApplication, number | null>)}
+            {...(props as CellContext<JobApplicationTableData, number | null>)}
           />
         )
       },
@@ -177,7 +177,7 @@ export default function getColumnsJob({
         <SelectCell
           options={jobTypeOptions}
           variantGetter={getBadgeVariantByJobType}
-          {...(props as CellContext<JobApplication, string>)}
+          {...(props as CellContext<JobApplicationTableData, string>)}
         />
       ),
     },
@@ -200,7 +200,7 @@ export default function getColumnsJob({
         <SelectCell
           options={statusOptions}
           variantGetter={getBadgeVariantByStatus}
-          {...(props as CellContext<JobApplication, string>)}
+          {...(props as CellContext<JobApplicationTableData, string>)}
         />
       ),
     },
@@ -224,7 +224,7 @@ export default function getColumnsJob({
         <SelectCell
           options={priorityOptions}
           variantGetter={getBadgeVariantByPriority}
-          {...(props as CellContext<JobApplication, string>)}
+          {...(props as CellContext<JobApplicationTableData, string>)}
         />
       ),
     },
@@ -242,46 +242,12 @@ export default function getColumnsJob({
         <DataTableColumnHeader column={column} title="Applied Date" />
       ),
       cell: (props) => (
-        <DateCell {...(props as CellContext<JobApplication, string>)} />
+        <DateCell
+          {...(props as CellContext<JobApplicationTableData, string>)}
+        />
       ),
     },
-    {
-      id: "description",
-      accessorKey: "description",
-      meta: {
-        label: "Description",
-      },
-      size: 150,
-      header: ({ column }) => (
-        <DataTableColumnHeader column={column} title="Description" />
-      ),
-      cell: (props) => {
-        return (
-          <DescriptionCell
-            {...(props as CellContext<JobApplication, string>)}
-          />
-        )
-      },
-    },
-    {
-      id: "resume_id",
-      accessorKey: "resume_id",
-      meta: {
-        label: "Resume",
-      },
-      size: 200,
-      header: ({ column }) => (
-        <DataTableColumnHeader column={column} title="Resume" />
-      ),
-      cell: (props) => {
-        return (
-          <ResumeCell
-            {...(props as CellContext<JobApplication, string>)}
-            resumes={resumes}
-          />
-        )
-      },
-    },
+
     {
       id: "actions",
       cell: function Cell({ row }) {

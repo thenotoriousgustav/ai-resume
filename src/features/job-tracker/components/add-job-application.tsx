@@ -57,7 +57,7 @@ export default function AddJobApplication({
       location: "",
       salary: 0,
       description: "",
-      url: "",
+      source_url: "",
       status: "applied",
       priority: "medium",
       job_type: "full_time",
@@ -264,7 +264,7 @@ export default function AddJobApplication({
 
                 <FormField
                   control={form.control}
-                  name="url"
+                  name="source_url"
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Job URL</FormLabel>

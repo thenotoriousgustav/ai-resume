@@ -16,7 +16,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover"
-import { JobApplication } from "@/types/database"
+import { JobApplicationTableData } from "@/types/database"
 
 import updateTableCell from "../../server/actions/update-table-cell"
 
@@ -24,7 +24,7 @@ export const DateCell = ({
   getValue,
   row,
   column,
-}: CellContext<JobApplication, string>): JSX.Element => {
+}: CellContext<JobApplicationTableData, string>): JSX.Element => {
   // Parse date string correctly to avoid timezone issues
   const parseDateString = (dateString: string | null): Date | undefined => {
     if (!dateString) return undefined

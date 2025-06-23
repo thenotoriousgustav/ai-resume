@@ -9,7 +9,7 @@ export const jobApplicationSchema = z.object({
   location: z.string().optional(),
   salary: z.number().optional(),
   description: z.string().optional(),
-  url: z.string().url("Invalid URL").optional().or(z.literal("")),
+  source_url: z.string().url("Invalid URL").optional().or(z.literal("")),
   deadline: z.date().optional(),
   priority: z.enum(["low", "medium", "high"]).optional(),
   job_type: z

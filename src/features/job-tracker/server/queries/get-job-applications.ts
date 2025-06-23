@@ -1,20 +1,12 @@
 "use server"
 
 import { getCurrentUser } from "@/server/actions/get-current-user"
-import { JobApplication } from "@/types/database"
-import { ResultAsync, tryCatch } from "@/types/result"
+import { tryCatch } from "@/types/result"
 import { createClient } from "@/utils/supabase/server"
 
 import { GetJobApplicationsInput } from "../../lib/validations"
 
-interface GetJobApplicationsResult {
-  data: JobApplication[]
-  pageCount: number
-}
-
-export async function getJobApplications(
-  input: GetJobApplicationsInput
-): ResultAsync<GetJobApplicationsResult, Error> {
+export async function getJobApplications(input: GetJobApplicationsInput) {
   return tryCatch(async () => {
     const supabase = await createClient()
     const [user, userError] = await getCurrentUser()
@@ -30,7 +22,10 @@ export async function getJobApplications(
 
     let query = supabase
       .from("job_applications")
-      .select("*, resumes(*)", { count: "exact" })
+      .select(
+        "id, position, company, location, status, priority, job_type, applied_at, salary, currency",
+        { count: "exact" }
+      )
       .eq("user_id", user.id)
 
     if (input.position) {

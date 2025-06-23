@@ -3,7 +3,6 @@ import { cookies } from "next/headers"
 import JobTable from "@/features/job-tracker/components/job-table"
 import { searchParamsCache } from "@/features/job-tracker/lib/validations"
 import { getJobApplications } from "@/features/job-tracker/server/queries/get-job-applications"
-import getResumes from "@/server/queries/get-resumes"
 
 export const dynamic = "force-dynamic"
 
@@ -25,7 +24,6 @@ export default async function JobTrackerPage({
     getJobApplications({
       ...search,
     }),
-    getResumes(),
   ])
 
   return (

@@ -52,20 +52,21 @@ export async function POST(req: Request) {
       schema: tailorSchema,
       prompt: `
         You are an expert resume consultant. Analyze the provided resume against the job description and provide:
-        
-        1. Keywords analysis (missing, present, suggestions)
-        2. Specific improvement suggestions with priority levels
-        3. Missing job titles that would be relevant
-        4. Overall match score (0-100)
-        
+
+        Resume Content:
+        ${resume}
+
         Job Details:
         - Position: ${position}
         - Company: ${company}
         - Job Description: ${description}
         
-        Resume Content:
-        ${resume}
-        
+        1. Keywords analysis (missing, present, suggestions)
+        2. Specific improvement suggestions with priority levels
+        3. Missing job titles that would be relevant
+        4. Overall match score (0-100)
+        5. Additional insights or recommendations
+
         Provide actionable, specific recommendations that will help improve the resume's match for this ${position} position at ${company}.
       `,
     })

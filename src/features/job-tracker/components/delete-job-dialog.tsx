@@ -27,13 +27,13 @@ import {
   DrawerTrigger,
 } from "@/components/ui/drawer"
 import { useMediaQuery } from "@/hooks/use-media-query"
-import { JobApplication } from "@/types/database"
+import { JobApplicationTableData } from "@/types/database"
 
 import deleteJobs from "../server/actions/delete-jobs"
 
 interface DeleteJobDialogProps
   extends React.ComponentPropsWithoutRef<typeof Dialog> {
-  job: Row<JobApplication>["original"][]
+  job: Row<JobApplicationTableData>["original"][]
   showTrigger?: boolean
   onSuccess?: () => void
 }

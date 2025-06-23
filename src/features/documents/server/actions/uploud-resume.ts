@@ -67,7 +67,7 @@ export default async function uploadResume(
         user_id: user.id,
         file_name: fileName,
         file_size: file.size,
-        file_type: file.type,
+        file_type: fileExtension,
         storage_path: storagePath,
         storage_url: uploadResult.storageUrl,
         title: title,

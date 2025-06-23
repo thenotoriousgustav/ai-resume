@@ -11,7 +11,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-import { JobApplication } from "@/types/database"
+import { JobApplicationTableData } from "@/types/database"
 
 import updateTableCell from "../../server/actions/update-table-cell"
 
@@ -30,7 +30,7 @@ const currencies = [
 export const SalaryCell = ({
   getValue,
   row,
-}: CellContext<JobApplication, number | null>) => {
+}: CellContext<JobApplicationTableData, number | null>) => {
   const initialValue = getValue()
   const initialCurrency = row.original.currency || "IDR"
   const rowId = row.original.id

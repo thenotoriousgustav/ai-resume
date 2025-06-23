@@ -7,6 +7,20 @@ export type DbTargetedResumeAnalysis = Tables<"targeted_resume_analysis">
 export type DbCoverLetter = Tables<"cover_letters">
 export type DBResumeBuilder = Tables<"resumes_builder">
 
+// Limited job application data returned from the job table query
+export type JobApplicationTableData = {
+  id: string
+  position: string
+  company: string
+  location: string
+  status: Database["public"]["Enums"]["job_status"] | null
+  priority: Database["public"]["Enums"]["job_priority"] | null
+  job_type: Database["public"]["Enums"]["job_type"]
+  applied_at: string | null
+  salary: number | null
+  currency: string
+}
+
 export type JobApplication = DbJobApplication & {
   resumes: DbResume | null
 }
