@@ -7,9 +7,9 @@ import {
   Download,
   Eye,
   FileText,
+  Loader2,
   PenTool,
   PlusIcon,
-  Search,
 } from "lucide-react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
@@ -84,14 +84,21 @@ export default function DrawerDocument({
             className="w-full justify-between px-3 font-normal"
             disabled={isPending}
           >
-            <span
-              className={cn(
-                "truncate",
-                !data.resumes && "text-muted-foreground"
-              )}
-            >
-              {data.resumes ? data.resumes.title : "No resume attached"}
-            </span>
+            <div className="flex items-center">
+              {isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+              <span
+                className={cn(
+                  "truncate",
+                  !data.resumes && "text-muted-foreground"
+                )}
+              >
+                {isPending
+                  ? "Updating..."
+                  : data.resumes
+                    ? data.resumes.title
+                    : "No resume attached"}
+              </span>
+            </div>
             <ChevronDownIcon
               size={16}
               className="text-muted-foreground/80 shrink-0"
@@ -198,12 +205,6 @@ export default function DrawerDocument({
                 <Link href={`/targeted-resume/${data.id}`}>
                   <FileText className="mr-2 h-4 w-4" />
                   Targeted Resume
-                </Link>
-              </Button>
-              <Button asChild variant="outline" size="sm">
-                <Link href={`/analyze/${data.resumes.id}`}>
-                  <Search className="mr-2 h-4 w-4" />
-                  Analyze Resume
                 </Link>
               </Button>
               <Button asChild variant="outline" size="sm">

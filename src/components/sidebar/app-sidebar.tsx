@@ -4,7 +4,6 @@ import { UserMetadata } from "@supabase/supabase-js"
 import {
   Asterisk,
   File,
-  FileText,
   GalleryVerticalEnd,
   SquareTerminal,
 } from "lucide-react"
@@ -57,11 +56,6 @@ const navigation = {
       name: "Dashboard",
       url: "/dashboard",
       icon: SquareTerminal,
-    },
-    {
-      name: "Resume Builder",
-      url: "/resume-builder",
-      icon: FileText,
     },
     {
       name: "Documents",

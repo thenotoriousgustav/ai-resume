@@ -127,10 +127,10 @@ export default function AddJobFromUrl() {
         <DialogHeader>
           <DialogTitle>Add Job from URL</DialogTitle>
           <DialogDescription>
-            Paste a JobStreet, LinkedIn, or Indeed job URL to automatically
-            extract and add the job application. The system uses advanced
-            scraping techniques to handle anti-bot protection, but some sites
-            may occasionally block automated extraction.
+            Paste a JobStreet or LinkedIn job URL to automatically extract and
+            add the job application. The system uses advanced scraping
+            techniques to handle anti-bot protection, but some sites may
+            occasionally block automated extraction.
           </DialogDescription>
         </DialogHeader>
         <Form {...form}>
@@ -143,13 +143,13 @@ export default function AddJobFromUrl() {
                   <FormLabel>Job URL</FormLabel>
                   <FormControl>
                     <Input
-                      placeholder="https://id.jobstreet.com/... or https://linkedin.com/jobs/... or https://id.indeed.com/..."
+                      placeholder="https://id.jobstreet.com/... or https://linkedin.com/jobs/..."
                       {...field}
                     />
                   </FormControl>
                   <FormDescription>
-                    Copy and paste the JobStreet, LinkedIn, or Indeed job URL
-                    here. The system will automatically extract job details.
+                    Copy and paste the JobStreet or LinkedIn job URL here. The
+                    system will automatically extract job details.
                   </FormDescription>
                   <FormMessage />
                 </FormItem>

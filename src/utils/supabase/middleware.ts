@@ -31,7 +31,6 @@ export async function updateSession(request: NextRequest) {
     }
   )
 
-  // Get user directly from supabase in middleware (don't use getCurrentUser to avoid circular dependency)
   const {
     data: { user },
     error: userError,
