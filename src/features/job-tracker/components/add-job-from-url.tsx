@@ -61,16 +61,22 @@ export default function AddJobFromUrl() {
       const scrapeResult = await scrapeResponse.json()
 
       if (!scrapeResult.success) {
-        // Special handling for Indeed blocking
-        if (scrapeResult.suggestion === "manual_entry") {
+        // Enhanced error handling for different platforms
+        if (scrapeResult.platform === "indeed") {
           toast.error(
-            "Indeed blocks automated scraping. Please add this job manually using the form below.",
+            scrapeResult.error || "Failed to scrape Indeed job page",
             {
-              duration: 8000,
+              description:
+                scrapeResult.suggestion ||
+                "Please try copying the job details manually.",
+              duration: 10000,
             }
           )
         } else {
-          toast.error(scrapeResult.error || "Failed to scrape job data")
+          toast.error(scrapeResult.error || "Failed to scrape job data", {
+            description: scrapeResult.suggestion,
+            duration: 6000,
+          })
         }
         return
       }
@@ -122,8 +128,9 @@ export default function AddJobFromUrl() {
           <DialogTitle>Add Job from URL</DialogTitle>
           <DialogDescription>
             Paste a JobStreet, LinkedIn, or Indeed job URL to automatically
-            extract and add the job application. Note: Indeed may block
-            automated scraping - if this happens, please add the job manually.
+            extract and add the job application. The system uses advanced
+            scraping techniques to handle anti-bot protection, but some sites
+            may occasionally block automated extraction.
           </DialogDescription>
         </DialogHeader>
         <Form {...form}>
