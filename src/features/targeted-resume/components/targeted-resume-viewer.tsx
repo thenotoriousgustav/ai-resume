@@ -84,8 +84,6 @@ export default function TargetedResumeViewer({
               <Page
                 key={`page_${index + 1}`}
                 pageNumber={index + 1}
-                renderTextLayer={true}
-                renderAnnotationLayer={true}
                 customTextRenderer={textRenderer}
                 className="relative shadow-md"
               >

@@ -34,7 +34,7 @@ export default function DrawerJobDetails({ data }: { data: JobApplication }) {
       company: data.company || "",
       position: data.position || "",
       location: data.location || "",
-      salary: data.salary || 0,
+      salary: data.salary || undefined,
       job_type: data.job_type || undefined,
       status: data.status || undefined,
       priority: data.priority || undefined,
@@ -55,11 +55,19 @@ export default function DrawerJobDetails({ data }: { data: JobApplication }) {
     // Only save if value has changed
     if (normalizedCurrentValue !== normalizedOriginalValue) {
       try {
-        await updateJobDetail(data.id, fieldName, String(value || ""))
+        // Convert value based on field type
+        let processedValue: string | number = value
+        if (fieldName === "salary" && typeof value === "string") {
+          // Try to parse salary as number, fallback to 0 if invalid
+          const numericValue = parseFloat(value.replace(/[^\d.-]/g, ""))
+          processedValue = isNaN(numericValue) ? 0 : numericValue
+        }
+
+        await updateJobDetail(data.id, fieldName, processedValue)
         // Update the original data reference to reflect the saved value
         originalDataRef.current = {
           ...originalDataRef.current,
-          [fieldName]: value,
+          [fieldName]: processedValue,
         }
         toast.success(`${fieldName} updated successfully`)
         router.refresh()

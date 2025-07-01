@@ -55,7 +55,7 @@ export default function AddJobApplication({
       company: "",
       position: "",
       location: "",
-      salary: 0,
+      salary: undefined,
       description: "",
       source_url: "",
       status: "applied",
@@ -162,11 +162,12 @@ export default function AddJobApplication({
                           type="number"
                           placeholder="Enter salary amount"
                           {...field}
+                          value={field.value?.toString() || ""}
                           onChange={(e) =>
                             field.onChange(
-                              e.target.value
-                                ? Number(e.target.value)
-                                : undefined
+                              e.target.value === ""
+                                ? undefined
+                                : Number(e.target.value)
                             )
                           }
                         />

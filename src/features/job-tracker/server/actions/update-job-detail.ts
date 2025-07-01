@@ -11,7 +11,7 @@ import { updateJobApplicationSchema } from "../../schemas/job-application-schema
 export default async function updateJobDetail(
   id: string,
   field: string,
-  value: string
+  value: string | number | null
 ): ResultAsync<void, Error> {
   return tryCatch(async () => {
     const supabase = await createClient()
@@ -39,6 +39,6 @@ export default async function updateJobDetail(
       throw new Error(`Failed to update job application: ${dbError.message}`)
     }
 
-    revalidatePath("/job-tracker")
+    revalidatePath("/job-tracker", "page")
   })
 }

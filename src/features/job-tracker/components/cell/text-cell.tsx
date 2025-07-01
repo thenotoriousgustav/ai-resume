@@ -2,9 +2,7 @@
 
 import { CellContext } from "@tanstack/react-table"
 import { JSX, startTransition, useEffect, useState } from "react"
-import { useForm } from "react-hook-form"
 
-import { Form, FormControl, FormField, FormItem } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
 import { JobApplicationTableData } from "@/types/database"
 
@@ -15,25 +13,21 @@ export const TextCell = ({
   row,
   column,
 }: CellContext<JobApplicationTableData, string>): JSX.Element => {
-  const initialValue = getValue() ?? ""
+  const initialValue = getValue()
 
   const [value, setValue] = useState(initialValue)
 
-  const form = useForm({
-    defaultValues: {
-      [column.id]: value,
-    },
-    mode: "onBlur",
-  })
+  useEffect(() => {
+    setValue(initialValue)
+  }, [initialValue])
 
   const handleBlur = async () => {
-    const currentValue = form.getValues(column.id)
     const rowId = row.original.id
     const columnId = column.id
 
-    if (currentValue !== value) {
+    if (initialValue !== value) {
       startTransition(async () => {
-        await updateTableCell(rowId, columnId, currentValue)
+        await updateTableCell(rowId, columnId, value)
       })
     }
   }
@@ -45,30 +39,13 @@ export const TextCell = ({
     }
   }
 
-  useEffect(() => {
-    setValue(initialValue)
-  }, [initialValue])
-
   return (
-    <Form {...form}>
-      <form>
-        <FormField
-          control={form.control}
-          name={column.id}
-          render={({ field }) => (
-            <FormItem className="m-0 space-y-0 p-0">
-              <FormControl>
-                <Input
-                  {...field}
-                  onBlur={handleBlur}
-                  onKeyDown={handleKeyDown}
-                  className="h-auto border-0 bg-transparent p-0 shadow-none focus-visible:ring-0 focus-visible:ring-offset-0"
-                />
-              </FormControl>
-            </FormItem>
-          )}
-        />
-      </form>
-    </Form>
+    <Input
+      onBlur={handleBlur}
+      onKeyDown={handleKeyDown}
+      value={value}
+      onChange={(e) => setValue(e.target.value)}
+      className="h-auto border-0 bg-transparent p-0 shadow-none focus-visible:ring-0 focus-visible:ring-offset-0"
+    />
   )
 }

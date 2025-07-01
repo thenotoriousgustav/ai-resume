@@ -7,7 +7,7 @@ export const jobApplicationSchema = z.object({
     .enum(["applied", "interview", "offer", "accepted", "rejected"])
     .optional(),
   location: z.string().optional(),
-  salary: z.number().optional(),
+  salary: z.coerce.number().optional(),
   description: z.string().optional(),
   source_url: z.string().url("Invalid URL").optional().or(z.literal("")),
   deadline: z.date().optional(),
