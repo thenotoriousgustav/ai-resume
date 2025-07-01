@@ -1,44 +1,34 @@
-// We are using useRouter hence this needs to be a client component.
 "use client"
 
-import { useParams, useRouter, useSelectedLayoutSegment } from "next/navigation"
-import React, { useEffect } from "react"
+import { useRouter } from "next/navigation"
+import React from "react"
 
-import { DialogTitle } from "@/components/ui/dialog"
-import { Drawer, DrawerContent } from "@/components/ui/drawer"
+import { Drawer, DrawerContent, DrawerTitle } from "@/components/ui/drawer"
 
 export default function DrawerWrapper({
   children,
 }: {
   children: React.ReactNode
 }) {
-  const segment = useSelectedLayoutSegment("modal")
-  const params = useParams()
-
   const router = useRouter()
+  const [isOpen, setIsOpen] = React.useState(true)
 
-  const [open, setOpen] = React.useState(false)
-
-  useEffect(() => {
-    const hasJobId = params?.id
-    setOpen(!!hasJobId)
-  }, [segment, params])
-
-  const onOpenChange = (open: boolean) => {
-    if (!open) {
-      router.back()
-    }
-  }
+  const handleCloseModal = React.useCallback(() => {
+    setIsOpen(false)
+    router.back()
+  }, [router])
 
   return (
     <Drawer
-      open={open}
-      onOpenChange={onOpenChange}
+      open={isOpen}
+      onOpenChange={(open) => {
+        if (!open) handleCloseModal()
+      }}
       shouldScaleBackground={true}
       direction="right"
     >
       <DrawerContent className="overflow-y-auto">
-        <DialogTitle className="sr-only">Edit profile</DialogTitle>
+        <DrawerTitle className="sr-only">Edit profile</DrawerTitle>
 
         {children}
       </DrawerContent>

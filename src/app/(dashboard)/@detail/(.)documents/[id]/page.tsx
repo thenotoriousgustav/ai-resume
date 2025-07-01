@@ -1,5 +1,8 @@
-import DocumentDialog from "@/features/documents/components/dialog/document-dialog"
+import { Suspense } from "react"
+
 import DocumentDialogContent from "@/features/documents/components/dialog/document-dialog-content"
+import DocumentDialogLoading from "@/features/documents/components/dialog/document-dialog-loading"
+import DocumentDialogWrapper from "@/features/documents/components/dialog/document-dialog-wrapper"
 
 export default async function DocumentDetailPage({
   params,
@@ -8,8 +11,10 @@ export default async function DocumentDetailPage({
 }) {
   const { id } = await params
   return (
-    <DocumentDialog>
-      <DocumentDialogContent resumeId={id} />
-    </DocumentDialog>
+    <DocumentDialogWrapper>
+      <Suspense fallback={<DocumentDialogLoading />}>
+        <DocumentDialogContent resumeId={id} />
+      </Suspense>
+    </DocumentDialogWrapper>
   )
 }

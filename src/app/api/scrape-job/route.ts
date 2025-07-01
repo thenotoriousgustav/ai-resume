@@ -8,7 +8,7 @@ interface JobData {
   description: string
   jobType?: string
   salary?: string
-  platform: "jobstreet" | "linkedin" | "indeed"
+  platform: "jobstreet" | "linkedin"
 }
 
 interface LinkedInApiResponse {
@@ -46,16 +46,14 @@ export async function POST(request: NextRequest) {
     }
 
     // Determine platform and validate URL
-    let platform: "jobstreet" | "linkedin" | "indeed"
+    let platform: "jobstreet" | "linkedin"
     if (url.includes("jobstreet.com")) {
       platform = "jobstreet"
     } else if (url.includes("linkedin.com")) {
       platform = "linkedin"
-    } else if (url.includes("indeed.com")) {
-      platform = "indeed"
     } else {
       return NextResponse.json(
-        { error: "Only JobStreet, LinkedIn, and Indeed URLs are supported" },
+        { error: "Only JobStreet and LinkedIn URLs are supported" },
         { status: 400 }
       )
     }
@@ -79,8 +77,8 @@ export async function POST(request: NextRequest) {
         const urlParams = new URL(url)
         jobId = urlParams.searchParams.get("currentJobId")
       } else if (url.includes("/jobs/view/")) {
-        // From direct job URLs: https://www.linkedin.com/jobs/view/4058541593
-        const match = url.match(/\/jobs\/view\/(\d+)/)
+        // From direct job URLs: https://www.linkedin.com/jobs/view/4258966843
+        const match = url.match(/\/jobs\/view\/(\d+)(?:\?|$|\/?)/)
         if (match) {
           jobId = match[1]
         }
@@ -90,9 +88,10 @@ export async function POST(request: NextRequest) {
         if (match) {
           jobId = match[1]
         }
-      } else if (url.match(/\/(\d+)(?:\?|$)/)) {
-        // Extract from any URL ending with job ID
-        const match = url.match(/\/(\d+)(?:\?|$)/)
+      } else {
+        // Extract job ID from the end of any LinkedIn URL
+        // This handles URLs like: https://www.linkedin.com/jobs/view/4258966843
+        const match = url.match(/\/(\d+)(?:\?.*)?(?:#.*)?$/)
         if (match) {
           jobId = match[1]
         }
@@ -101,31 +100,6 @@ export async function POST(request: NextRequest) {
       // Convert to LinkedIn jobs API endpoint for better data access
       if (jobId) {
         finalUrl = `https://www.linkedin.com/jobs-guest/jobs/api/jobPosting/${jobId}`
-      }
-    } else if (platform === "indeed") {
-      // Handle Indeed URL formats and convert to job detail URL
-      let jobId = null
-
-      // Extract jobId from different Indeed URL patterns
-      if (url.includes("vjk=")) {
-        // From search URLs: https://id.indeed.com/jobs?q=front+end&vjk=bbd47a5700368326
-        const urlParams = new URL(url)
-        jobId = urlParams.searchParams.get("vjk")
-      } else if (url.includes("/viewjob?jk=")) {
-        // From direct job URLs: https://id.indeed.com/viewjob?jk=bbd47a5700368326
-        const urlParams = new URL(url)
-        jobId = urlParams.searchParams.get("jk")
-      } else if (url.match(/jk=([^&]+)/)) {
-        // Extract jk parameter from any URL
-        const match = url.match(/jk=([^&]+)/)
-        if (match) {
-          jobId = match[1]
-        }
-      }
-
-      // Convert to Indeed job detail URL
-      if (jobId) {
-        finalUrl = `https://id.indeed.com/viewjob?jk=${jobId}`
       }
     }
 
@@ -187,9 +161,6 @@ export async function POST(request: NextRequest) {
         const $ = cheerio.load(html)
         extractLinkedInData($, jobData)
       }
-    } else if (platform === "indeed") {
-      const $ = cheerio.load(html)
-      extractIndeedData($, jobData)
     }
 
     // Validate that we got the essential information
@@ -554,6 +525,40 @@ function extractLinkedInData($: cheerio.CheerioAPI, jobData: JobData) {
     }
   }
 
+  // Extract salary if available
+  const salarySelectors = [
+    ".salary.compensation__salary",
+    ".compensation__salary",
+    ".salary",
+    '[data-test-id="job-details-salary"]',
+    ".job-details-jobs-unified-top-card__salary",
+    ".topcard__flavor--salary",
+    ".salary-range",
+    ".compensation-range",
+  ]
+
+  for (const selector of salarySelectors) {
+    const element = $(selector).first()
+    if (element.length) {
+      const salaryText = element.text().trim()
+      if (
+        salaryText &&
+        (salaryText.includes("$") ||
+          salaryText.includes("IDR") ||
+          salaryText.includes("Rp") ||
+          salaryText.includes("€") ||
+          salaryText.includes("£") ||
+          salaryText.includes("/yr") ||
+          salaryText.includes("/year") ||
+          salaryText.includes("annually") ||
+          salaryText.match(/\d+,?\d*\s*-\s*\d+,?\d*/))
+      ) {
+        jobData.salary = salaryText
+        break
+      }
+    }
+  }
+
   // Special handling for internship detection from job title
   if (!jobData.jobType && jobData.position) {
     const positionLower = jobData.position.toLowerCase()
@@ -711,295 +716,5 @@ function extractLinkedInApiData(
   } catch (error) {
     console.error("Error extracting LinkedIn API data:", error)
     // If API extraction fails, we'll rely on the HTML fallback
-  }
-}
-
-// Indeed extraction function
-function extractIndeedData($: cheerio.CheerioAPI, jobData: JobData) {
-  // Extract position/job title
-  const positionSelectors = [
-    'h1[data-testid="jobsearch-JobInfoHeader-title"] span[title]',
-    'h1[data-testid="jobsearch-JobInfoHeader-title"]',
-    ".jobsearch-JobInfoHeader-title span[title]",
-    ".jobsearch-JobInfoHeader-title",
-    "h1.icl-u-xs-mb--xs.icl-u-xs-mt--none.jobsearch-JobInfoHeader-title",
-    "h1 span[title]",
-  ]
-
-  for (const selector of positionSelectors) {
-    const element = $(selector).first()
-    if (element.length) {
-      // Try to get from title attribute first, then text content
-      const titleAttr = element.attr("title")
-      const textContent = element.text().trim()
-
-      if (titleAttr && titleAttr.trim()) {
-        jobData.position = titleAttr.trim()
-        break
-      } else if (textContent) {
-        jobData.position = textContent
-        break
-      }
-    }
-  }
-
-  // Extract company name
-  const companySelectors = [
-    'div[data-testid="inlineHeader-companyName"] a',
-    'div[data-testid="inlineHeader-companyName"] span',
-    'div[data-testid="inlineHeader-companyName"]',
-    '.jobsearch-InlineCompanyRating div[data-testid="inlineHeader-companyName"] a',
-    '.jobsearch-InlineCompanyRating div[data-testid="inlineHeader-companyName"]',
-    'a[data-testid="company-name"]',
-    ".icl-u-lg-mr--sm.icl-u-xs-mr--xs a",
-  ]
-
-  for (const selector of companySelectors) {
-    const element = $(selector).first()
-    if (element.length) {
-      const companyText = element.text().trim()
-      if (companyText && companyText !== "undefined") {
-        jobData.company = companyText
-        break
-      }
-    }
-  }
-
-  // Extract location
-  const locationSelectors = [
-    'div[data-testid="job-location"]',
-    'div[data-testid="jobsearch-JobInfoHeader-subtitle"] div[data-testid="job-location"]',
-    '.jobsearch-JobInfoHeader-subtitle div[data-testid="job-location"]',
-    '.icl-u-xs-mt--xs.icl-u-textColor--secondary div[data-testid="job-location"]',
-    'div[data-testid="job-location"] div',
-    '.jobsearch-DesktopStickyContainer-subtitle div[data-testid="job-location"]',
-  ]
-
-  for (const selector of locationSelectors) {
-    const element = $(selector).first()
-    if (element.length) {
-      const locationText = element.text().trim()
-      if (locationText) {
-        jobData.location = locationText
-        break
-      }
-    }
-  }
-
-  // Extract job description
-  const descriptionSelectors = [
-    'div[data-testid="jobsearch-JobComponent-description"]',
-    "#jobDescriptionText",
-    ".jobsearch-jobDescriptionText",
-    ".jobsearch-JobComponent-description",
-    'div[id="jobDescriptionText"]',
-  ]
-
-  for (const selector of descriptionSelectors) {
-    const element = $(selector).first()
-    if (element.length) {
-      let descriptionText = ""
-
-      // Extract from lists (ol, ul)
-      element.find("ul, ol").each((_, listEl) => {
-        $(listEl)
-          .find("li")
-          .each((_, li) => {
-            const liText = $(li).text().trim()
-            if (liText) {
-              descriptionText += `• ${liText}\n`
-            }
-          })
-      })
-
-      // Extract from paragraphs not inside lists
-      element.find("p").each((_, p) => {
-        const $p = $(p)
-        if ($p.closest("li").length === 0) {
-          const pText = $p.text().trim()
-          if (pText) {
-            descriptionText += `${pText}\n\n`
-          }
-        }
-      })
-
-      // Extract from divs if no lists or paragraphs found
-      if (!descriptionText.trim()) {
-        element.find("div").each((_, div) => {
-          const divText = $(div).text().trim()
-          if (divText && divText.length > 20) {
-            descriptionText += `${divText}\n\n`
-          }
-        })
-      }
-
-      // Fallback to entire element text
-      if (!descriptionText.trim()) {
-        descriptionText = element.text().trim()
-      }
-
-      if (descriptionText.trim()) {
-        jobData.description = descriptionText.trim()
-        break
-      }
-    }
-  }
-
-  // Extract job type and salary information
-  const metadataSelectors = [
-    'div[data-testid="jobsearch-JobInfoHeader-subtitle"]',
-    ".jobsearch-JobInfoHeader-subtitle",
-    ".jobsearch-DesktopStickyContainer-subtitle",
-  ]
-
-  for (const selector of metadataSelectors) {
-    const element = $(selector).first()
-    if (element.length) {
-      const metadataText = element.text().toLowerCase()
-
-      // Extract job type
-      if (!jobData.jobType) {
-        if (
-          metadataText.includes("full-time") ||
-          metadataText.includes("full time")
-        ) {
-          jobData.jobType = "full_time"
-        } else if (
-          metadataText.includes("part-time") ||
-          metadataText.includes("part time")
-        ) {
-          jobData.jobType = "part_time"
-        } else if (metadataText.includes("contract")) {
-          jobData.jobType = "contract"
-        } else if (metadataText.includes("temporary")) {
-          jobData.jobType = "contract"
-        } else if (metadataText.includes("internship")) {
-          jobData.jobType = "internship"
-        } else if (metadataText.includes("remote")) {
-          jobData.jobType = "remote"
-        }
-      }
-
-      // Extract salary if mentioned in metadata
-      if (!jobData.salary) {
-        const salaryRegex =
-          /[\$€£¥₹][\d,]+(?:\s*-\s*[\$€£¥₹]?[\d,]+)?(?:\s*(?:per|\/)\s*(?:hour|month|year|annum))?/i
-        const salaryMatch = element.text().match(salaryRegex)
-        if (salaryMatch) {
-          jobData.salary = salaryMatch[0].trim()
-        }
-      }
-    }
-  }
-
-  // Special handling for internship detection from job title
-  if (!jobData.jobType && jobData.position) {
-    const positionLower = jobData.position.toLowerCase()
-    if (
-      positionLower.includes("internship") ||
-      positionLower.includes("intern")
-    ) {
-      jobData.jobType = "internship"
-    }
-  }
-
-  // Additional salary extraction from dedicated salary elements
-  if (!jobData.salary) {
-    const salarySelectors = [
-      // Based on the provided HTML structure
-      "span.js-match-insights-provider-1vjtffa", // Contains salary text like "$118,000 - $170,000 a year"
-      'div[data-testid*="salary"] span',
-      'div[aria-label="Pay"] span.js-match-insights-provider-1vjtffa',
-      'div[data-testid="job-salary"]',
-      ".jobsearch-SalaryGuide-container",
-      ".icl-u-xs-mr--xs .attribute_snippet",
-      "span.salary-snippet",
-    ]
-
-    for (const selector of salarySelectors) {
-      const element = $(selector).first()
-      if (element.length) {
-        const salaryText = element.text().trim()
-        if (
-          salaryText &&
-          (salaryText.includes("$") ||
-            salaryText.includes("IDR") ||
-            salaryText.includes("Rp") ||
-            salaryText.includes("€") ||
-            salaryText.includes("£") ||
-            salaryText.match(
-              /\d+,?\d*\s*-\s*\d+,?\d*\s*(a\s+year|per\s+year|annually)/i
-            ))
-        ) {
-          jobData.salary = salaryText
-          break
-        }
-      }
-    }
-  }
-
-  // Enhanced job type extraction from Indeed's job details section
-  if (!jobData.jobType) {
-    const jobTypeSelectors = [
-      // Based on the provided HTML structure
-      'div[aria-label="Job type"] span.js-match-insights-provider-1vjtffa', // Contains "Full-time"
-      'div[data-testid*="job-type"] span',
-      'div[role="group"][aria-label*="type"] span',
-      ".js-match-insights-provider-1vjtffa", // Generic selector for job details
-    ]
-
-    for (const selector of jobTypeSelectors) {
-      $(selector).each((_, element) => {
-        const text = $(element).text().trim().toLowerCase()
-        if (text.includes("full-time") || text.includes("full time")) {
-          jobData.jobType = "full_time"
-          return false
-        } else if (text.includes("part-time") || text.includes("part time")) {
-          jobData.jobType = "part_time"
-          return false
-        } else if (text.includes("contract")) {
-          jobData.jobType = "contract"
-          return false
-        } else if (text.includes("temporary")) {
-          jobData.jobType = "contract"
-          return false
-        } else if (text.includes("internship")) {
-          jobData.jobType = "internship"
-          return false
-        } else if (text.includes("remote")) {
-          jobData.jobType = "remote"
-          return false
-        }
-      })
-    }
-  }
-
-  // Fallback extraction from meta tags if main extraction fails
-  if (!jobData.position) {
-    const metaTitle =
-      $('meta[property="og:title"]').attr("content") || $("title").text()
-    if (metaTitle) {
-      // Indeed title format often includes job title and company
-      const titleParts = metaTitle.split(" - ")
-      if (titleParts.length > 0) {
-        jobData.position = titleParts[0].trim()
-      }
-    }
-  }
-
-  if (!jobData.company && jobData.position) {
-    const metaTitle =
-      $('meta[property="og:title"]').attr("content") || $("title").text()
-    if (metaTitle) {
-      const titleParts = metaTitle.split(" - ")
-      if (titleParts.length > 1) {
-        // Remove 'Indeed.com' or location info from company name
-        let companyPart = titleParts[1].split(",")[0].trim()
-        companyPart = companyPart.replace(/\s*\|\s*Indeed\.com.*$/i, "").trim()
-        if (companyPart && companyPart !== "Indeed.com") {
-          jobData.company = companyPart
-        }
-      }
-    }
   }
 }

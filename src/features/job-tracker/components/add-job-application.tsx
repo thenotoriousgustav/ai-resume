@@ -97,7 +97,6 @@ export default function AddJobApplication({
         <div className="flex-1 px-4">
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-              {/* Required Fields */}
               <div className="space-y-4">
                 <h3 className="text-muted-foreground text-sm font-semibold">
                   Required Information

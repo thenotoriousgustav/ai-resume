@@ -4,7 +4,6 @@ import { format } from "date-fns"
 import {
   CheckIcon,
   ChevronDownIcon,
-  Download,
   Eye,
   FileText,
   Loader2,
@@ -167,12 +166,11 @@ export default function DrawerDocument({
 
       {data.resumes ? (
         <div className="space-y-3 rounded-lg border p-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
+          <div className="flex justify-between">
+            <div className="flex gap-3">
               <div>
                 <div className="font-medium">{data.resumes.title}</div>
                 <div className="text-sm text-gray-500">
-                  {data.resumes.file_name} •{" "}
                   {(data.resumes.file_size / 1024 / 1024).toFixed(2)} MB
                 </div>
                 {data.resumes.description && (
@@ -183,13 +181,11 @@ export default function DrawerDocument({
               </div>
             </div>
             <div className="flex gap-2">
-              <Button variant="outline" size="sm">
-                <Eye className="mr-2 h-4 w-4" />
-                View
-              </Button>
-              <Button variant="outline" size="sm">
-                <Download className="mr-2 h-4 w-4" />
-                Download
+              <Button variant="outline" size="sm" asChild>
+                <Link href={`/documents/${data.resumes.id}`}>
+                  <Eye className="mr-2 h-4 w-4" />
+                  View
+                </Link>
               </Button>
             </div>
           </div>
@@ -231,9 +227,6 @@ export default function DrawerDocument({
           <p className="text-gray-500">
             No resume attached to this application
           </p>
-          <Button variant="outline" className="mt-3">
-            Attach Resume
-          </Button>
         </div>
       )}
     </div>

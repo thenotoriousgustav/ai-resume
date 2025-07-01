@@ -11,10 +11,11 @@ export default function AuthenticationPage() {
 
 const AuthBrandingPanel = () => (
   <div className="hidden w-1/2 bg-zinc-900 p-8 text-white lg:flex lg:flex-col lg:justify-between">
-    <h1 className="text-2xl font-bold">Magang Gue</h1>
+    <h1 className="text-2xl font-bold">Silamar</h1>
     <p>
-      "Lorem ipsum, dolor sit amet consectetur adipisicing elit. Repellat
-      deserunt, eligendi impedit debitis obcaecati quos?" - Gustam Rheza
+      Silamar is a job application management platform designed to help you
+      track and organize your job applications efficiently. Create an account to
+      get started and take control of your job search.
     </p>
   </div>
 )

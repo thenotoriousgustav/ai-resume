@@ -2,13 +2,13 @@
 
 import { motion } from "framer-motion"
 import Image from "next/image"
+import Link from "next/link"
 
 import { Button } from "@/components/ui/button"
 
 export function HeroSection() {
   return (
     <section className="relative w-full overflow-hidden py-12 md:py-24 lg:py-32">
-      {/* Background gradient similar to the reference design */}
       <div className="absolute inset-0 bg-gradient-to-br from-purple-50 via-pink-50 to-orange-50 opacity-70" />
 
       <div className="relative z-10 px-4 md:px-6">
@@ -20,7 +20,7 @@ export function HeroSection() {
             className="space-y-2"
           >
             <p className="text-lg text-black/80 md:text-xl">
-              AI-Powered Career Assistant
+              Welcome to the Future of Job Applications
             </p>
             <h1 className="text-4xl font-bold tracking-tighter text-black md:text-6xl lg:text-7xl">
               Smart Resume{" "}
@@ -62,15 +62,14 @@ export function HeroSection() {
             animate={{ opacity: 1 }}
             transition={{ delay: 0.5, duration: 0.5 }}
           >
-            Get AI-powered resume analysis, generate targeted cover letters,
-            track your applications, and receive personalized feedback to
-            optimize your resume for specific job descriptions. Transform your
-            job search with intelligent automation.
+            Our AI-powered platform analyzes your resume, optimizes it for
+            specific job applications, and helps you stand out to recruiters.
+            Start your journey to success today!
           </motion.p>
 
           {/* Feature highlights */}
           <motion.div
-            className="mt-6 grid grid-cols-2 gap-4 text-sm text-black/60 md:grid-cols-4"
+            className="mt-6 grid grid-cols-3 gap-4 text-sm text-black/60"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.6, duration: 0.5 }}
@@ -84,10 +83,6 @@ export function HeroSection() {
               <span>Cover Letters</span>
             </div>
             <div className="flex flex-col items-center space-y-1">
-              <span className="text-2xl">🎯</span>
-              <span>Job Targeting</span>
-            </div>
-            <div className="flex flex-col items-center space-y-1">
               <span className="text-2xl">📱</span>
               <span>Job Tracking</span>
             </div>
@@ -99,14 +94,14 @@ export function HeroSection() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.7, duration: 0.5 }}
           >
-            <Button className="rounded-full bg-black px-8 py-6 text-lg text-white hover:bg-black/90">
-              Start Free Analysis
-            </Button>
             <Button
-              variant="outline"
-              className="rounded-full border-black px-8 py-6 text-lg text-black hover:bg-black hover:text-white"
+              variant={"outline"}
+              className="rounded-full px-8 py-6 text-lg font-semibold text-black hover:bg-black/10"
+              asChild
             >
-              View Demo
+              <Link href="/dashboard">
+                Start for Free <span className="text-2xl">🙀</span>
+              </Link>
             </Button>
           </motion.div>
 

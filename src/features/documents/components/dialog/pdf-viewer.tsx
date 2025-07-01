@@ -3,23 +3,18 @@
 import { Loader2 } from "lucide-react"
 import { useState } from "react"
 import { Document, Page, pdfjs } from "react-pdf"
+import "react-pdf/dist/Page/AnnotationLayer.css"
+import "react-pdf/dist/Page/TextLayer.css"
 
-import "react-pdf/dist/esm/Page/AnnotationLayer.css"
-import "react-pdf/dist/esm/Page/TextLayer.css"
 import { usePdfStore } from "@/hooks/use-pdf-store"
-import { Tables } from "@/types/supabase-types"
+import { DbResume } from "@/types/database"
 
-// Set worker URL
 pdfjs.GlobalWorkerOptions.workerSrc = new URL(
   "pdfjs-dist/build/pdf.worker.min.mjs",
   import.meta.url
 ).toString()
 
-type PdfViewerProps = {
-  resume: Tables<"resumes">
-}
-
-export default function PdfViewer({ resume }: PdfViewerProps) {
+export default function PdfViewer({ resume }: { resume: DbResume }) {
   const [numPages, setNumPages] = useState<number | null>(null)
 
   const { scale } = usePdfStore()
@@ -51,8 +46,6 @@ export default function PdfViewer({ resume }: PdfViewerProps) {
             <Page
               key={`page_${index + 1}`}
               pageNumber={index + 1}
-              renderTextLayer={true}
-              renderAnnotationLayer={true}
               scale={scale}
               className="mb-8 shadow-md"
               loading={

@@ -1,6 +1,7 @@
 import React, { Suspense } from "react"
 
 import DrawerContentDetail from "@/features/job-tracker/components/detail-page/drawer-content-detail"
+import DrawerWrapper from "@/features/job-tracker/components/detail-page/drawer-wrapper"
 import getJobApplication from "@/server/queries/get-job-application"
 import getResumes from "@/server/queries/get-resumes"
 
@@ -14,9 +15,11 @@ export default async function JobDetailsPageDrawer({
   const { id } = await params
 
   return (
-    <Suspense fallback={<JobModalLoading />}>
-      <JobDetailsPage id={id} />
-    </Suspense>
+    <DrawerWrapper>
+      <Suspense fallback={<JobModalLoading />}>
+        <JobDetailsPage id={id} />
+      </Suspense>
+    </DrawerWrapper>
   )
 }
 

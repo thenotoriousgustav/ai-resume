@@ -229,15 +229,7 @@ export default function getColumnsJob({
       ),
     },
     {
-      id: "applied_at",
       accessorKey: "applied_at",
-      meta: {
-        label: "Applied Date",
-        placeholder: "Filter by applied date",
-        variant: "dateRange",
-        icon: Eye,
-      },
-
       header: ({ column }) => (
         <DataTableColumnHeader column={column} title="Applied Date" />
       ),

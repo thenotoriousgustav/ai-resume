@@ -1,15 +1,11 @@
 "use server"
 
-import { JobApplication } from "@/types/database"
-import { ResultAsync, tryCatch } from "@/types/result"
+import { tryCatch } from "@/types/result"
 import { createClient } from "@/utils/supabase/server"
 
 import { getCurrentUser } from "../actions/get-current-user"
 
-export default async function getJobApplications(): ResultAsync<
-  JobApplication[],
-  Error
-> {
+export default async function getJobApplications() {
   return tryCatch(async () => {
     const supabase = await createClient()
 

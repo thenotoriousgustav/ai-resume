@@ -2,10 +2,8 @@ import { Database, Tables } from "./supabase-types"
 
 export type DbJobApplication = Tables<"job_applications">
 export type DbResume = Tables<"resumes">
-export type DbResumeAnalysis = Tables<"resume_analysis">
 export type DbTargetedResumeAnalysis = Tables<"targeted_resume_analysis">
 export type DbCoverLetter = Tables<"cover_letters">
-export type DBResumeBuilder = Tables<"resumes_builder">
 
 // Limited job application data returned from the job table query
 export type JobApplicationTableData = {

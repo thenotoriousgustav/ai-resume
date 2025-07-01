@@ -212,9 +212,9 @@ export default function DashboardClient({
                     </div>
                     <div className="flex space-x-2">
                       <Button asChild size="sm" variant="outline">
-                        <Link href={`/analyze/${resume.id}`}>
+                        <Link href={`/documents/${resume.id}`}>
                           <BarChart3 className="mr-2 h-4 w-4" />
-                          Analyze
+                          View
                         </Link>
                       </Button>
                     </div>

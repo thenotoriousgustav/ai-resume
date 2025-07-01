@@ -17,16 +17,17 @@ const geistMono = Geist_Mono({
 })
 
 export const metadata: Metadata = {
-  title: "JobGenius - AI-Powered Job Search Platform",
+  title: "Silamar - AI-Powered Cover Letter & Resume Analyzer",
   description:
-    "JobGenius uses advanced AI to analyze your resume, generate tailored cover letters, and track your job applications—all in one platform.",
+    "Silamar uses advanced AI to generate tailored cover letters, analyze your resume based on job descriptions, and track your job applications—all in one platform.",
   keywords:
-    "job search, resume analysis, cover letter generator, job application tracking, AI job search",
+    "AI cover letter generator, resume analysis, job description matching, job application tracker, AI resume analyzer, cover letter AI",
   openGraph: {
-    title: "JobGenius - AI-Powered Job Search Platform",
-    description: "Land your dream job faster with AI-powered tools",
-    url: "https://jobgenius.com",
-    siteName: "JobGenius",
+    title: "Silamar - AI-Powered Cover Letter & Resume Analyzer",
+    description:
+      "Generate perfect cover letters and analyze your resume with AI based on job descriptions",
+    url: "https://silamar.com",
+    siteName: "Silamar",
     type: "website",
   },
 }

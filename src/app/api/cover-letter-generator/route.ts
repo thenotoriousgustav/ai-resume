@@ -1,11 +1,5 @@
-import { createTogetherAI } from "@ai-sdk/togetherai"
+import { openai } from "@ai-sdk/openai"
 import { streamText } from "ai"
-
-import { env } from "@/config/env"
-
-const togetherai = createTogetherAI({
-  apiKey: env.TOGETHER_AI_API_KEY ?? "",
-})
 
 export async function POST(req: Request) {
   const { resume, company, position, jobDescription } = await req.json()
@@ -38,7 +32,7 @@ The cover letter should be approximately 350-400 words (3-4 paragraphs). Do not 
 `
 
   const result = streamText({
-    model: togetherai("meta-llama/Llama-3.3-70B-Instruct-Turbo-Free"),
+    model: openai("gpt-4o-mini"),
     system:
       "You are an expert career advisor who writes compelling, effective cover letters tailored to specific job opportunities.",
     prompt: coverLetterPrompt,

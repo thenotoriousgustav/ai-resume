@@ -1,10 +1,6 @@
 import React from "react"
 
-import {
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog"
+import { DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import getResume from "@/server/queries/get-resume"
 
 import PdfToolbar from "./pdf-toolbar"
@@ -23,7 +19,7 @@ export default async function DocumentDialogContent({
   }
 
   return (
-    <DialogContent className="w-full max-w-[95vw] lg:max-w-[90vw] xl:max-w-[85vw]">
+    <React.Fragment>
       <DialogHeader className="flex flex-row items-center justify-between">
         <DialogTitle className="text-xl">{resume.title}</DialogTitle>
         <PdfToolbar resume={resume} />
@@ -34,6 +30,6 @@ export default async function DocumentDialogContent({
         </div>
         <ResumeData resume={resume} />
       </div>
-    </DialogContent>
+    </React.Fragment>
   )
 }

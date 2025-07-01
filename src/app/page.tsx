@@ -1,6 +1,5 @@
 import React from "react"
 
-import { CtaSection } from "@/features/home/components/cta-section"
 import { HeroSection } from "@/features/home/components/hero-section"
 import NavbarSection from "@/features/home/components/navbar-section"
 
@@ -9,7 +8,6 @@ export default function LandingPage() {
     <div>
       <NavbarSection />
       <HeroSection />
-      <CtaSection />
     </div>
   )
 }

@@ -4,13 +4,13 @@ import { X } from "lucide-react"
 import React from "react"
 
 import { Badge } from "@/components/ui/badge"
-import { DrawerClose } from "@/components/ui/drawer"
+import { DrawerClose, DrawerHeader } from "@/components/ui/drawer"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { cn } from "@/lib/utils"
 import { DbResume, JobApplication } from "@/types/database"
 
 import DrawerDocument from "./drawer-document"
 import DrawerJobDetails from "./drawer-job-details"
-import DrawerTimeline from "./drawer-timeline"
 
 interface DrawerContentDetailProps {
   data: JobApplication
@@ -50,13 +50,16 @@ export default function DrawerContentDetail({
   resumes,
 }: DrawerContentDetailProps) {
   return (
-    <div>
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="flex items-center gap-2">
+    <React.Fragment>
+      <DrawerClose className="flex justify-end p-2">
+        <X className="h-4 w-4" />
+      </DrawerClose>
+      <DrawerHeader className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+        <div className="flex-1 space-y-2">
+          <h1 className="text-xl leading-none font-semibold tracking-tight">
             {data.position} at {data.company}
           </h1>
-          <div className="mt-2 flex items-center gap-4">
+          <div className="text-muted-foreground flex flex-wrap items-center gap-4 text-sm">
             {data.location && (
               <span className="flex items-center gap-1">{data.location}</span>
             )}
@@ -67,26 +70,23 @@ export default function DrawerContentDetail({
         </div>
         <div className="flex items-center gap-2">
           {data.status && (
-            <Badge className={getStatusColor(data.status)}>{data.status}</Badge>
+            <Badge className={cn(getStatusColor(data.status))}>
+              {data.status}
+            </Badge>
           )}
           {data.priority && (
-            <Badge className={getPriorityColor(data.priority)}>
+            <Badge className={cn(getPriorityColor(data.priority))}>
               {data.priority}
             </Badge>
           )}
-
-          <DrawerClose className="cursor-pointer">
-            <X className="h-4 w-4" />
-          </DrawerClose>
         </div>
-      </div>
+      </DrawerHeader>
 
       <div className="flex-1 p-4">
         <Tabs defaultValue="details" className="w-full">
-          <TabsList className="grid w-full grid-cols-3">
+          <TabsList className="grid w-full grid-cols-2">
             <TabsTrigger value="details">Job Details</TabsTrigger>
             <TabsTrigger value="documents">Documents</TabsTrigger>
-            <TabsTrigger value="timeline">Timeline</TabsTrigger>
           </TabsList>
 
           <TabsContent value="details" className="mt-6 space-y-6">
@@ -96,12 +96,8 @@ export default function DrawerContentDetail({
           <TabsContent value="documents" className="mt-6 space-y-4">
             <DrawerDocument data={data} resumes={resumes} />
           </TabsContent>
-
-          <TabsContent value="timeline" className="mt-6 space-y-4">
-            <DrawerTimeline data={data} />
-          </TabsContent>
         </Tabs>
       </div>
-    </div>
+    </React.Fragment>
   )
 }

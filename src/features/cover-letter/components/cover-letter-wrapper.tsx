@@ -1,7 +1,7 @@
 "use client"
 
 import { useCompletion } from "@ai-sdk/react"
-import React, { useEffect, useState } from "react"
+import React, { useState } from "react"
 import { toast } from "sonner"
 import { z } from "zod"
 
@@ -29,28 +29,25 @@ export default function CoverLetterWrapper({
   >(existingCoverLetter?.content)
   const [showingPrevious, setShowingPrevious] = useState(!!existingCoverLetter)
 
-  const { complete, completion, isLoading } = useCompletion({
-    api: "/api/cover-letter-generator",
-  })
-
-  // Save cover letter when generation is complete
-  useEffect(() => {
-    if (completion && !isLoading) {
-      saveCoverLetter({
+  const onFinish = async (prompt: string, completion: string) => {
+    try {
+      await saveCoverLetter({
         jobApplicationId,
         content: completion,
       })
-        .then(() => {
-          toast.success("Cover letter saved successfully")
-          setCurrentCoverLetter(completion)
-          setShowingPrevious(false)
-        })
-        .catch((error) => {
-          console.error("Failed to save cover letter:", error)
-          toast.error("Failed to save cover letter")
-        })
+      toast.success("Cover letter saved successfully")
+      setCurrentCoverLetter(completion)
+      setShowingPrevious(false)
+    } catch (error) {
+      console.error("Failed to save cover letter:", error)
+      toast.error("Failed to save cover letter")
     }
-  }, [completion, isLoading, jobApplicationId])
+  }
+
+  const { complete, completion, isLoading } = useCompletion({
+    api: "/api/cover-letter-generator",
+    onFinish,
+  })
 
   const handleSaveAndGenerate = async (
     formData: z.infer<typeof coverLetterSchema>

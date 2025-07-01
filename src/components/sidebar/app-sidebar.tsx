@@ -7,6 +7,7 @@ import {
   GalleryVerticalEnd,
   SquareTerminal,
 } from "lucide-react"
+import Link from "next/link"
 import * as React from "react"
 
 import { NavProjects } from "@/components/sidebar/nav-projects"
@@ -28,9 +29,9 @@ type AppSidebarProps = {
 const navigation = {
   teams: [
     {
-      name: "Magang",
+      name: "Silamar",
       logo: GalleryVerticalEnd,
-      plan: "Enterprise",
+      plan: "Smart Resume",
     },
   ],
   navMain: [
@@ -74,7 +75,9 @@ export function AppSidebar({ ...props }: AppSidebarProps) {
   return (
     <Sidebar collapsible="icon" {...props}>
       <SidebarHeader>
-        <TeamSwitcher teams={navigation.teams} />
+        <Link href="/" className="cursor-pointer">
+          <TeamSwitcher teams={navigation.teams} />
+        </Link>
       </SidebarHeader>
       <SidebarContent>
         {/* <NavMain items={navigation.navMain} /> */}
