@@ -24,7 +24,6 @@ export default function DrawerWrapper({
       onOpenChange={(open) => {
         if (!open) handleCloseModal()
       }}
-      shouldScaleBackground={true}
       direction="right"
     >
       <DrawerContent className="overflow-y-auto">

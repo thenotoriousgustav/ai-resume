@@ -3,6 +3,8 @@ import { notFound } from "next/navigation"
 import DocumentViewer from "@/features/documents/components/document-viewer"
 import getResume from "@/server/queries/get-resume"
 
+export const dynamic = "force-dynamic"
+
 export default async function DocumentDetailPage({
   params,
 }: {

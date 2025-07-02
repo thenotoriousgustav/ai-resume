@@ -4,8 +4,6 @@ import DashboardClient from "@/features/dashboard/components/dashboard-client"
 import getJobApplications from "@/server/queries/get-job-applications"
 import getResumes from "@/server/queries/get-resumes"
 
-export const dynamic = "force-dynamic"
-
 // Loading component for dashboard content
 function DashboardContentSkeleton() {
   return (

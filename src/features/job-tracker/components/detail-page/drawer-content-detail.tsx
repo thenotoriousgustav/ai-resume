@@ -3,11 +3,11 @@
 import { X } from "lucide-react"
 import React from "react"
 
-import { Badge } from "@/components/ui/badge"
 import { DrawerClose, DrawerHeader } from "@/components/ui/drawer"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { cn } from "@/lib/utils"
 import { DbResume, JobApplication } from "@/types/database"
+
+import { JobTypeBadge, PriorityBadge, StatusBadge } from "../badges"
 
 import DrawerDocument from "./drawer-document"
 import DrawerJobDetails from "./drawer-job-details"
@@ -15,34 +15,6 @@ import DrawerJobDetails from "./drawer-job-details"
 interface DrawerContentDetailProps {
   data: JobApplication
   resumes: DbResume[]
-}
-
-function getStatusColor(status: string | null) {
-  switch (status?.toLowerCase()) {
-    case "applied":
-      return "bg-blue-100 text-blue-800"
-    case "interview":
-      return "bg-yellow-100 text-yellow-800"
-    case "offered":
-      return "bg-green-100 text-green-800"
-    case "rejected":
-      return "bg-red-100 text-red-800"
-    default:
-      return "bg-gray-100 text-gray-800"
-  }
-}
-
-function getPriorityColor(priority: string | null) {
-  switch (priority?.toLowerCase()) {
-    case "high":
-      return "bg-red-100 text-red-800"
-    case "medium":
-      return "bg-yellow-100 text-yellow-800"
-    case "low":
-      return "bg-green-100 text-green-800"
-    default:
-      return "bg-gray-100 text-gray-800"
-  }
 }
 
 export default function DrawerContentDetail({
@@ -69,16 +41,9 @@ export default function DrawerContentDetail({
           </div>
         </div>
         <div className="flex items-center gap-2">
-          {data.status && (
-            <Badge className={cn(getStatusColor(data.status))}>
-              {data.status}
-            </Badge>
-          )}
-          {data.priority && (
-            <Badge className={cn(getPriorityColor(data.priority))}>
-              {data.priority}
-            </Badge>
-          )}
+          <StatusBadge status={data.status} />
+          <PriorityBadge priority={data.priority} />
+          <JobTypeBadge jobType={data.job_type} />
         </div>
       </DrawerHeader>
 
