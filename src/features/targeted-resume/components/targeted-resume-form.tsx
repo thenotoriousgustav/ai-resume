@@ -18,8 +18,9 @@ import {
 } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
-import updateApplication from "@/features/cover-letter/server/actions/update-application"
 import { JobApplication } from "@/types/database"
+
+import updateApplicationResume from "../server/actions/update-application-resume"
 
 const formSchema = z.object({
   position: z.string().min(2, {
@@ -31,6 +32,7 @@ const formSchema = z.object({
   description: z.string().min(10, {
     message: "Description must be at least 10 characters.",
   }),
+  language: z.string().optional(),
 })
 
 export default function TargetedResumeForm({
@@ -48,18 +50,20 @@ export default function TargetedResumeForm({
       position: jobApplication.position,
       company: jobApplication.company,
       description: jobApplication.description,
+      language: "",
     },
   })
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
-      await updateApplication(values, jobApplication.id)
+      await updateApplicationResume(values, jobApplication.id)
       toast.success("Job application updated successfully!")
 
       submit({
         position: values.position,
         company: values.company,
         description: values.description,
+        language: values.language || "english",
         resume: jobApplication.resumes?.extracted_text || "",
       })
     } catch (error) {
@@ -124,6 +128,27 @@ export default function TargetedResumeForm({
                 </FormControl>
                 <FormDescription>
                   Paste the complete job description to help tailor your resume.
+                </FormDescription>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="language"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Analysis Language</FormLabel>
+                <FormControl>
+                  <Input
+                    placeholder="e.g. indonesian, spanish, etc. (default: english)"
+                    {...field}
+                  />
+                </FormControl>
+                <FormDescription>
+                  Enter the language for AI analysis and recommendations. Leave
+                  empty for English.
                 </FormDescription>
                 <FormMessage />
               </FormItem>

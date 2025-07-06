@@ -16,6 +16,13 @@ export const coverLetterSchema = z.object({
     .min(1, "Job description is required")
     .min(10, "Job description must be at least 10 characters")
     .max(5000, "Job description must be less than 5000 characters"),
+  tone: z.enum(["formal", "semi-formal", "friendly"], {
+    required_error: "Please select a tone for the cover letter.",
+  }),
+  language: z.string().optional(),
+  length: z.enum(["short", "medium", "long"], {
+    required_error: "Please select the length for the cover letter.",
+  }),
 })
 
 export type CoverLetterFormData = z.infer<typeof coverLetterSchema>

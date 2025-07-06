@@ -61,7 +61,10 @@ export default function CoverLetterWrapper({
         body: {
           company: formData.company,
           position: formData.position,
-          description: formData.description,
+          jobDescription: formData.description,
+          tone: formData.tone,
+          language: formData.language || "english",
+          length: formData.length,
           resume: jobApplicationData.resumes?.extracted_text || "",
         },
       }
@@ -77,13 +80,13 @@ export default function CoverLetterWrapper({
   const displayContent = completion || currentCoverLetter
 
   return (
-    <div className="flex h-[calc(100vh-200px)] flex-grow gap-6">
+    <div className="flex min-h-[calc(100vh-200px)] flex-grow gap-6">
       <div className="flex w-1/2">
         <div className="flex w-full flex-col rounded-lg border bg-white p-6 shadow-sm">
           <h2 className="mb-4 text-xl font-semibold">
             Job Application Details
           </h2>
-          <div className="flex flex-grow flex-col overflow-hidden">
+          <div className="flex flex-grow flex-col">
             <CoverLetterForm
               initialData={{
                 company: jobApplicationData.company || "",

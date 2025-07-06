@@ -49,7 +49,7 @@ export default function TargetedResumeWrapper({
   const [showForm, setShowForm] = useState(!previousAnalysis) // Show form only if no previous analysis
 
   const { isLoading, stop, object, submit } = useObject({
-    api: "/api/tailor",
+    api: "/api/targeted-resume-analyze",
     schema: tailorSchema,
     onFinish: async (result) => {
       // Auto-save when generation is complete

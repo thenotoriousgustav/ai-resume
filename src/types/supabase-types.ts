@@ -45,7 +45,6 @@ export type Database = {
           currency: string
           description: string
           id: string
-          is_favorite: boolean
           job_type: Database["public"]["Enums"]["job_type"]
           location: string
           position: string
@@ -65,7 +64,6 @@ export type Database = {
           currency?: string
           description?: string
           id?: string
-          is_favorite?: boolean
           job_type?: Database["public"]["Enums"]["job_type"]
           location: string
           position: string
@@ -85,7 +83,6 @@ export type Database = {
           currency?: string
           description?: string
           id?: string
-          is_favorite?: boolean
           job_type?: Database["public"]["Enums"]["job_type"]
           location?: string
           position?: string
@@ -106,54 +103,6 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
-      }
-      resume_analysis: {
-        Row: {
-          analysis_date: string | null
-          career_recommendation: string | null
-          created_at: string | null
-          id: string
-          keywords: Json
-          language: string | null
-          overall_impression: string
-          overall_score: number
-          raw_analysis_data: Json
-          resume_id: string
-          sections: Json
-          updated_at: string | null
-          user_id: string
-        }
-        Insert: {
-          analysis_date?: string | null
-          career_recommendation?: string | null
-          created_at?: string | null
-          id?: string
-          keywords?: Json
-          language?: string | null
-          overall_impression: string
-          overall_score: number
-          raw_analysis_data: Json
-          resume_id: string
-          sections?: Json
-          updated_at?: string | null
-          user_id: string
-        }
-        Update: {
-          analysis_date?: string | null
-          career_recommendation?: string | null
-          created_at?: string | null
-          id?: string
-          keywords?: Json
-          language?: string | null
-          overall_impression?: string
-          overall_score?: number
-          raw_analysis_data?: Json
-          resume_id?: string
-          sections?: Json
-          updated_at?: string | null
-          user_id?: string
-        }
-        Relationships: []
       }
       resumes: {
         Row: {
@@ -198,51 +147,6 @@ export type Database = {
           storage_path?: string
           storage_url?: string
           title?: string
-          updated_at?: string
-          user_id?: string
-        }
-        Relationships: []
-      }
-      resumes_builder: {
-        Row: {
-          certifications: Json
-          created_at: string
-          education: Json
-          experiences: Json
-          id: string
-          objective: string | null
-          personal_info: Json
-          skills: Json
-          template: string
-          title: string | null
-          updated_at: string
-          user_id: string
-        }
-        Insert: {
-          certifications?: Json
-          created_at?: string
-          education?: Json
-          experiences?: Json
-          id?: string
-          objective?: string | null
-          personal_info?: Json
-          skills?: Json
-          template?: string
-          title?: string | null
-          updated_at?: string
-          user_id: string
-        }
-        Update: {
-          certifications?: Json
-          created_at?: string
-          education?: Json
-          experiences?: Json
-          id?: string
-          objective?: string | null
-          personal_info?: Json
-          skills?: Json
-          template?: string
-          title?: string | null
           updated_at?: string
           user_id?: string
         }
