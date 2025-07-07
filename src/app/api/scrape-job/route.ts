@@ -446,47 +446,112 @@ function extractLinkedInData($: cheerio.CheerioAPI, jobData: JobData) {
     if (element.length) {
       let descriptionText = ""
 
-      // Extract from lists
-      element.find("ol, ul").each((_, listEl) => {
-        $(listEl)
-          .find("li")
-          .each((_, li) => {
-            const liText = $(li).text().trim()
-            if (liText) {
-              descriptionText += `• ${liText}\n`
-            }
-          })
-      })
+      // Clone the element to manipulate it without affecting the original DOM
+      const $clone = element.clone()
 
-      // Extract from paragraphs
-      element.find("p").each((_, p) => {
-        const $p = $(p)
-        if ($p.closest("li").length === 0) {
-          const pText = $p.text().trim()
-          if (pText) {
-            descriptionText += `${pText}\n\n`
-          }
+      // Convert HTML content to readable text format
+      // Replace <br> tags with newlines
+      $clone.find("br").replaceWith("\n")
+
+      // Process <strong> tags to add emphasis
+      $clone.find("strong").each((_, strongEl) => {
+        const $strong = $(strongEl)
+        const text = $strong.text().trim()
+        if (text) {
+          $strong.replaceWith(`**${text}**`)
         }
       })
 
-      // Extract from divs if no lists or paragraphs found
-      if (!descriptionText.trim()) {
-        element.find("div").each((_, div) => {
-          const divText = $(div).text().trim()
-          if (divText && divText.length > 20) {
-            descriptionText += `${divText}\n\n`
+      // Process lists properly
+      $clone.find("ul, ol").each((_, listEl) => {
+        const $list = $(listEl)
+        $list.find("li").each((_, li) => {
+          const $li = $(li)
+          const liText = $li.text().trim()
+          if (liText) {
+            $li.replaceWith(`• ${liText}\n`)
           }
         })
-      }
+      })
 
-      // Fallback to all text
-      if (!descriptionText.trim()) {
-        descriptionText = element.text().trim()
-      }
+      // Get the processed text
+      descriptionText = $clone.text()
 
-      if (descriptionText.trim()) {
-        jobData.description = descriptionText.trim()
+      // Clean up the text
+      descriptionText = descriptionText
+        .replace(/\n\s*\n\s*\n/g, "\n\n") // Replace multiple newlines with double newlines
+        .replace(/\s+/g, " ") // Replace multiple spaces with single space
+        .replace(/\n /g, "\n") // Remove spaces after newlines
+        .replace(/ \n/g, "\n") // Remove spaces before newlines
+        .trim()
+
+      // If we got meaningful content, use it
+      if (descriptionText.trim() && descriptionText.length > 50) {
+        jobData.description = descriptionText
         break
+      }
+
+      // Fallback: Extract structured content manually
+      if (!descriptionText.trim() || descriptionText.length <= 50) {
+        descriptionText = ""
+
+        // Extract text node by node to preserve structure
+        element.contents().each((_, node) => {
+          if (node.nodeType === 3) {
+            // Text node
+            const text = $(node).text().trim()
+            if (text) {
+              descriptionText += text + " "
+            }
+          } else if (node.nodeType === 1) {
+            // Element node
+            const $node = $(node)
+            const element = node as unknown as Element
+            const tagName = element.tagName?.toLowerCase()
+
+            if (tagName === "br") {
+              descriptionText += "\n"
+            } else if (tagName === "strong" || tagName === "b") {
+              const text = $node.text().trim()
+              if (text) {
+                descriptionText += `**${text}**`
+              }
+            } else if (tagName === "ul" || tagName === "ol") {
+              $node.find("li").each((_, li) => {
+                const liText = $(li).text().trim()
+                if (liText) {
+                  descriptionText += `\n• ${liText}`
+                }
+              })
+              descriptionText += "\n"
+            } else if (tagName === "p" || tagName === "div") {
+              const text = $node.text().trim()
+              if (text) {
+                descriptionText += `\n\n${text}`
+              }
+            } else {
+              const text = $node.text().trim()
+              if (text) {
+                descriptionText += text + " "
+              }
+            }
+          }
+        })
+
+        // Clean up the manually extracted text
+        if (descriptionText.trim()) {
+          descriptionText = descriptionText
+            .replace(/\n\s*\n\s*\n/g, "\n\n")
+            .replace(/\s+/g, " ")
+            .replace(/\n /g, "\n")
+            .replace(/ \n/g, "\n")
+            .trim()
+
+          if (descriptionText.length > 20) {
+            jobData.description = descriptionText
+            break
+          }
+        }
       }
     }
   }
@@ -696,22 +761,53 @@ function extractLinkedInApiData(
 
     // Process HTML content in description if it exists
     if (jobData.description && jobData.description.includes("<")) {
-      // Remove HTML tags and format the description
-      jobData.description = jobData.description
-        .replace(/<br\s*\/?>/gi, "\n")
-        .replace(/<li>/gi, "• ")
-        .replace(/<\/li>/gi, "\n")
-        .replace(/<p>/gi, "")
-        .replace(/<\/p>/gi, "\n\n")
-        .replace(/<[^>]*>/g, "")
+      // Use cheerio to properly parse and convert HTML to readable text
+      const $ = cheerio.load(jobData.description)
+
+      // Replace <br> tags with newlines
+      $("br").replaceWith("\n")
+
+      // Process <strong> and <b> tags to add emphasis
+      $("strong, b").each((_, el) => {
+        const $el = $(el)
+        const text = $el.text().trim()
+        if (text) {
+          $el.replaceWith(`**${text}**`)
+        }
+      })
+
+      // Process lists properly
+      $("ul, ol").each((_, listEl) => {
+        const $list = $(listEl)
+        $list.find("li").each((_, li) => {
+          const $li = $(li)
+          const liText = $li.text().trim()
+          if (liText) {
+            $li.replaceWith(`\n• ${liText}`)
+          }
+        })
+      })
+
+      // Get the cleaned text
+      let cleanedDescription = $.root().text()
+
+      // Clean up the description text
+      cleanedDescription = cleanedDescription
+        .replace(/\n\s*\n\s*\n/g, "\n\n") // Replace multiple newlines with double newlines
+        .replace(/\s+/g, " ") // Replace multiple spaces with single space
+        .replace(/\n /g, "\n") // Remove spaces after newlines
+        .replace(/ \n/g, "\n") // Remove spaces before newlines
         .replace(/&nbsp;/g, " ")
         .replace(/&amp;/g, "&")
         .replace(/&lt;/g, "<")
         .replace(/&gt;/g, ">")
         .replace(/&quot;/g, '"')
         .replace(/&#39;/g, "'")
-        .replace(/\s+/g, " ")
         .trim()
+
+      if (cleanedDescription && cleanedDescription.length > 20) {
+        jobData.description = cleanedDescription
+      }
     }
   } catch (error) {
     console.error("Error extracting LinkedIn API data:", error)
