@@ -1,7 +1,7 @@
 "use client"
 
 import { zodResolver } from "@hookform/resolvers/zod"
-import React, { startTransition } from "react"
+import React, { useTransition } from "react"
 import { useForm } from "react-hook-form"
 import { toast } from "sonner"
 import { z } from "zod"
@@ -27,6 +27,8 @@ interface ResumeInputProps {
 }
 
 export default function UploudResumeForm({ onSuccess }: ResumeInputProps) {
+  const [isPending, startTransition] = useTransition()
+
   const form = useForm<z.infer<typeof UploudResumeSchema>>({
     resolver: zodResolver(UploudResumeSchema),
     defaultValues: {
@@ -49,16 +51,21 @@ export default function UploudResumeForm({ onSuccess }: ResumeInputProps) {
 
   async function onSubmit(values: z.infer<typeof UploudResumeSchema>) {
     startTransition(async () => {
-      const [_, error] = await uploadResume(values)
+      try {
+        const [_, error] = await uploadResume(values)
 
-      if (error) {
-        toast.error(error.message)
-      } else {
-        toast.success("Resume uploaded successfully")
-        form.reset()
-        if (onSuccess) {
-          onSuccess()
+        if (error) {
+          toast.error(error.message)
+        } else {
+          toast.success("Resume uploaded successfully")
+          form.reset()
+          if (onSuccess) {
+            onSuccess()
+          }
         }
+      } catch (err) {
+        console.error("Upload error:", err)
+        toast.error("An unexpected error occurred")
       }
     })
   }
@@ -138,9 +145,16 @@ export default function UploudResumeForm({ onSuccess }: ResumeInputProps) {
         <Button
           type="submit"
           className="w-full cursor-pointer"
-          disabled={form.formState.isSubmitting}
+          disabled={isPending || form.formState.isSubmitting}
         >
-          {form.formState.isSubmitting ? "Uploading..." : "Upload Resume"}
+          {isPending || form.formState.isSubmitting ? (
+            <div className="flex items-center gap-2">
+              <div className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
+              Uploading...
+            </div>
+          ) : (
+            "Upload Resume"
+          )}
         </Button>
       </form>
     </Form>
