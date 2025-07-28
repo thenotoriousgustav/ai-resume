@@ -99,7 +99,7 @@ export default function UploudResumeForm({ onSuccess }: ResumeInputProps) {
                       value.size /
                       (1024 * 1024)
                     ).toFixed(2)}MB`
-                  : "Please upload a document file (PDF, DOC, or DOCX, max 10MB)."}
+                  : "Please upload a document PDF file."}
               </FormDescription>
               <FormMessage />
             </FormItem>
