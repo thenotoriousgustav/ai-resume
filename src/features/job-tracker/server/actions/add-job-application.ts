@@ -51,7 +51,6 @@ export default async function addJobApplication(
         status: status || null,
         priority: priority || null,
         job_type: job_type || undefined,
-        country: "",
         currency: "USD",
         source_url: source_url || null,
         applied_at: new Date().toISOString(),
