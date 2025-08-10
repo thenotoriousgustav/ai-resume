@@ -114,52 +114,7 @@ export type Database = {
           },
         ]
       }
-      resumes: {
-        Row: {
-          created_at: string
-          description: string
-          extracted_text: string | null
-          file_name: string
-          file_size: number
-          file_type: string
-          id: string
-          storage_path: string
-          storage_url: string
-          title: string
-          updated_at: string
-          user_id: string
-        }
-        Insert: {
-          created_at?: string
-          description?: string
-          extracted_text?: string | null
-          file_name: string
-          file_size: number
-          file_type: string
-          id?: string
-          storage_path: string
-          storage_url: string
-          title: string
-          updated_at?: string
-          user_id: string
-        }
-        Update: {
-          created_at?: string
-          description?: string
-          extracted_text?: string | null
-          file_name?: string
-          file_size?: number
-          file_type?: string
-          id?: string
-          storage_path?: string
-          storage_url?: string
-          title?: string
-          updated_at?: string
-          user_id?: string
-        }
-        Relationships: []
-      }
-      targeted_resume_analysis: {
+      resume_analysis: {
         Row: {
           created_at: string | null
           id: string
@@ -215,6 +170,51 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      resumes: {
+        Row: {
+          created_at: string
+          description: string
+          extracted_text: string | null
+          file_name: string
+          file_size: number
+          file_type: string
+          id: string
+          storage_path: string
+          storage_url: string
+          title: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string
+          extracted_text?: string | null
+          file_name: string
+          file_size: number
+          file_type: string
+          id?: string
+          storage_path: string
+          storage_url: string
+          title: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          description?: string
+          extracted_text?: string | null
+          file_name?: string
+          file_size?: number
+          file_type?: string
+          id?: string
+          storage_path?: string
+          storage_url?: string
+          title?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
       }
     }
     Views: {

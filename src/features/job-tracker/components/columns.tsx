@@ -257,11 +257,11 @@ export default function getColumnsJob({
             <DropdownMenuContent align="end" className="w-48">
               <DropdownMenuItem asChild>
                 <Link
-                  href={`/targeted-resume/${row.original.id}`}
+                  href={`/resume-analysis/${row.original.id}`}
                   className="flex cursor-pointer items-center"
                 >
                   <ChartBarStacked className="mr-2 h-4 w-4" />
-                  Targeted Resume
+                  Analyze Resume
                 </Link>
               </DropdownMenuItem>
               <DropdownMenuItem asChild>

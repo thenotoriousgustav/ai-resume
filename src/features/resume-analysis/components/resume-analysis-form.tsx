@@ -35,7 +35,7 @@ const formSchema = z.object({
   language: z.string().optional(),
 })
 
-export default function TargetedResumeForm({
+export default function ResumeAnalysisForm({
   jobApplication,
   submit,
   onCancel,

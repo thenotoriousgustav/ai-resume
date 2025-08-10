@@ -21,7 +21,7 @@ function highlightPattern(text: string, keywords: string[]): string {
   return text.replace(pattern, (value: string) => `<mark>${value}</mark>`)
 }
 
-export default function TargetedResumeViewer({
+export default function ResumeAnalysisViewer({
   resume,
   analysisObject,
 }: {

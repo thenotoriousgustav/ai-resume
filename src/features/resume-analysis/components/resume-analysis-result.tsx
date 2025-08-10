@@ -4,7 +4,7 @@ import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 
-interface TargetedResumeResultProps {
+interface ResumeAnalysisResultProps {
   object: {
     keywords?: {
       missing?: string[]
@@ -36,10 +36,10 @@ function highlightKeywords(text: string, keywords: string[]): string {
   )
 }
 
-export default function TargetedResumeResult({
+export default function ResumeAnalysisResult({
   object,
   jobDescription = "",
-}: TargetedResumeResultProps) {
+}: ResumeAnalysisResultProps) {
   const getPriorityColor = (priority: string) => {
     switch (priority) {
       case "high":

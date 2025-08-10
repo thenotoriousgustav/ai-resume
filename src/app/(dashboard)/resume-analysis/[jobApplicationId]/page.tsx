@@ -1,10 +1,10 @@
 import React from "react"
 
-import TargetedResumeWrapper from "@/features/targeted-resume/components/targeted-resume-wrapper"
-import getLatestResumeAnalysis from "@/features/targeted-resume/server/queries/get-latest-resume-analysis"
+import ResumeAnalysisWrapper from "@/features/resume-analysis/components/resume-analysis-wrapper"
+import getLatestResumeAnalysis from "@/features/resume-analysis/server/queries/get-latest-resume-analysis"
 import getJobApplication from "@/server/queries/get-job-application"
 
-export default async function TargetedResumePage({
+export default async function ResumeAnalysisPage({
   params,
 }: {
   params: Promise<{ jobApplicationId: string }>
@@ -52,7 +52,7 @@ export default async function TargetedResumePage({
   }
 
   return (
-    <TargetedResumeWrapper
+    <ResumeAnalysisWrapper
       jobApplicationData={jobApplicationData}
       previousAnalysis={previousAnalysisData}
     />

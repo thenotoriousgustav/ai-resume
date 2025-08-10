@@ -198,9 +198,9 @@ export default function DrawerDocument({
             </div>
             <div className="flex flex-wrap gap-2">
               <Button asChild variant="outline" size="sm">
-                <Link href={`/targeted-resume/${data.id}`}>
+                <Link href={`/resume-analysis/${data.id}`}>
                   <FileText className="mr-2 h-4 w-4" />
-                  Targeted Resume
+                  Resume Analyze
                 </Link>
               </Button>
               <Button asChild variant="outline" size="sm">
