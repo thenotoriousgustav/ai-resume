@@ -1,5 +1,8 @@
 "use server"
 
+import { redirect } from "next/navigation"
+
+import { getCurrentUser } from "@/server/queries/get-current-user"
 import { DbResumeAnalysis } from "@/types/database"
 import { ResultAsync, tryCatch } from "@/types/result"
 import { createClient } from "@/utils/supabase/server"
@@ -32,6 +35,12 @@ export async function saveResumeAnalysis(
 ): ResultAsync<DbResumeAnalysis, Error> {
   return tryCatch(async () => {
     const supabase = await createClient()
+
+    const [user, _] = await getCurrentUser()
+
+    if (!user) {
+      redirect("/auth")
+    }
 
     const { jobApplicationId, resumeId, analysisData } = input
 

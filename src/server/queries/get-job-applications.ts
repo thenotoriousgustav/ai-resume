@@ -1,18 +1,20 @@
 "use server"
 
+import { redirect } from "next/navigation"
+
 import { tryCatch } from "@/types/result"
 import { createClient } from "@/utils/supabase/server"
 
-import { getCurrentUser } from "../actions/get-current-user"
+import { getCurrentUser } from "./get-current-user"
 
 export default async function getJobApplications() {
   return tryCatch(async () => {
     const supabase = await createClient()
 
-    const [user, userError] = await getCurrentUser()
+    const [user, _] = await getCurrentUser()
 
-    if (userError) {
-      throw userError
+    if (!user) {
+      redirect("/auth")
     }
 
     const { data, error: dbError } = await supabase

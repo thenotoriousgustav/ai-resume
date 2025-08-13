@@ -3,8 +3,8 @@
 import { revalidatePath } from "next/cache"
 import { z } from "zod"
 
-import { getCurrentUser } from "@/server/actions/get-current-user"
 import { uploadFileStorage } from "@/server/actions/uploud-file-storage"
+import { getCurrentUser } from "@/server/queries/get-current-user"
 import { type ResultAsync, tryCatch } from "@/types/result"
 import { createClient } from "@/utils/supabase/server"
 

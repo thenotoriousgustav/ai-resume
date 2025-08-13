@@ -9,7 +9,7 @@ export async function updateSession(request: NextRequest) {
     request,
   })
 
-  const supabase = createServerClient<Database>(
+  await createServerClient<Database>(
     env.NEXT_PUBLIC_SUPABASE_URL!,
     env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
     {
@@ -30,32 +30,6 @@ export async function updateSession(request: NextRequest) {
       },
     }
   )
-
-  const {
-    data: { user },
-    error: userError,
-  } = await supabase.auth.getUser()
-
-  if (userError) {
-    console.error("Error fetching user:", userError)
-  }
-
-  const pathname = request.nextUrl.pathname
-  const protectedRoutes = [
-    "/resume",
-    "/profile",
-    "/job-tracker",
-    "/dashboard",
-    "/documents",
-  ]
-
-  if (!user && protectedRoutes.some((path) => pathname.includes(path))) {
-    return NextResponse.redirect(new URL("/auth", request.url))
-  }
-
-  if (user && pathname === "/auth") {
-    return NextResponse.redirect(new URL("/", request.url))
-  }
 
   return supabaseResponse
 }

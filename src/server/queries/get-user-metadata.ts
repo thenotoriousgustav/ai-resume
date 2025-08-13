@@ -1,27 +1,20 @@
 "use server"
 
+import { redirect } from "next/navigation"
 import { cache } from "react"
 
 import { GoogleUserMetadata } from "@/types/google-user-metadata"
 import { type ResultAsync, tryCatch } from "@/types/result"
-import { createClient } from "@/utils/supabase/server"
+
+import { getCurrentUser } from "./get-current-user"
 
 export const getUserMetadata = cache(
   async function getUserMetadata(): ResultAsync<GoogleUserMetadata, Error> {
     return tryCatch(async () => {
-      const supabase = await createClient()
-
-      const {
-        data: { user },
-        error,
-      } = await supabase.auth.getUser()
-
-      if (error) {
-        throw new Error(`Failed to fetch user: ${error.message}`)
-      }
+      const [user, _] = await getCurrentUser()
 
       if (!user) {
-        throw new Error("User not authenticated")
+        redirect("/auth")
       }
 
       return user.user_metadata

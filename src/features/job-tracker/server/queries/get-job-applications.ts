@@ -1,6 +1,8 @@
 "use server"
 
-import { getCurrentUser } from "@/server/actions/get-current-user"
+import { redirect } from "next/navigation"
+
+import { getCurrentUser } from "@/server/queries/get-current-user"
 import { tryCatch } from "@/types/result"
 import { createClient } from "@/utils/supabase/server"
 
@@ -9,10 +11,10 @@ import { GetJobApplicationsInput } from "../../lib/validations"
 export async function getJobApplications(input: GetJobApplicationsInput) {
   return tryCatch(async () => {
     const supabase = await createClient()
-    const [user, userError] = await getCurrentUser()
+    const [user, _] = await getCurrentUser()
 
-    if (userError) {
-      throw userError
+    if (!user) {
+      redirect("/auth")
     }
 
     const page = input.page ?? 1

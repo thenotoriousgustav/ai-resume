@@ -2,7 +2,7 @@ import Link from "next/link"
 import React from "react"
 
 import { Button } from "@/components/ui/button"
-import { getCurrentUser } from "@/server/actions/get-current-user"
+import { getCurrentUser } from "@/server/queries/get-current-user"
 
 export default async function NavbarSection() {
   const [user, _] = await getCurrentUser()

@@ -1,3 +1,6 @@
+import { redirect } from "next/navigation"
+
+import { getCurrentUser } from "@/server/queries/get-current-user"
 import { ResultAsync, tryCatch } from "@/types/result"
 
 export default async function pdfParser(
@@ -5,6 +8,12 @@ export default async function pdfParser(
 ): ResultAsync<string, Error> {
   return tryCatch(async () => {
     const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000"
+
+    const [user, _] = await getCurrentUser()
+
+    if (!user) {
+      redirect("/auth")
+    }
 
     const response = await fetch(`${baseUrl}/api/parse-pdf`, {
       method: "POST",

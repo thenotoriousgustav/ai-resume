@@ -1,8 +1,9 @@
 "use server"
 
 import { revalidatePath } from "next/cache"
+import { redirect } from "next/navigation"
 
-import { getCurrentUser } from "@/server/actions/get-current-user"
+import { getCurrentUser } from "@/server/queries/get-current-user"
 import { type ResultAsync, tryCatch } from "@/types/result"
 import { createClient } from "@/utils/supabase/server"
 
@@ -16,10 +17,10 @@ export default async function updateApplicationResume(
 ): ResultAsync<void, Error> {
   return tryCatch(async () => {
     const supabase = await createClient()
-    const [user, userError] = await getCurrentUser()
+    const [user, _] = await getCurrentUser()
 
-    if (userError) {
-      throw userError
+    if (!user) {
+      redirect("/auth")
     }
 
     const { error } = await supabase

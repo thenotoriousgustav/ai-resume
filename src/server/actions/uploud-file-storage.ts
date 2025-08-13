@@ -1,15 +1,11 @@
 "use server"
 
+import { redirect } from "next/navigation"
+
 import { type ResultAsync, tryCatch } from "@/types/result"
 import { createClient } from "@/utils/supabase/server"
 
-/**
- * Uploads a file to storage and returns the public URL
- * @param file The file to upload
- * @param storagePath The storage path for the file
- * @param bucketName The storage bucket name (defaults to "documents")
- * @returns Result containing storage path and URL
- */
+import { getCurrentUser } from "../queries/get-current-user"
 
 interface UploadFileStorageResult {
   storagePath: string
@@ -23,6 +19,12 @@ export async function uploadFileStorage(
 ): ResultAsync<UploadFileStorageResult, Error> {
   return tryCatch(async () => {
     const supabase = await createClient()
+
+    const [user, _] = await getCurrentUser()
+
+    if (!user) {
+      redirect("/auth")
+    }
 
     const { error } = await supabase.storage
       .from(bucketName)
