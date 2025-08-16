@@ -2,14 +2,15 @@
 
 import { zodResolver } from "@hookform/resolvers/zod"
 import { LoaderIcon, PlusIcon } from "lucide-react"
-import React, { useEffect, useTransition } from "react"
+import { usePathname, useRouter } from "next/navigation"
+import React, { useTransition } from "react"
 import { useForm } from "react-hook-form"
 import { toast } from "sonner"
 import { z } from "zod"
 
+import Modal from "@/components/modal"
 import { Button } from "@/components/ui/button"
 import {
-  Dialog,
   DialogContent,
   DialogDescription,
   DialogFooter,
@@ -37,8 +38,9 @@ const urlSchema = z.object({
 type FormData = z.infer<typeof urlSchema>
 
 export default function AddJobFromUrl() {
-  const [open, setOpen] = React.useState(false)
   const [isPending, startTransition] = useTransition()
+  const router = useRouter()
+  const pathname = usePathname()
 
   const form = useForm<FormData>({
     resolver: zodResolver(urlSchema),
@@ -49,7 +51,6 @@ export default function AddJobFromUrl() {
 
   const onSubmit = async (data: FormData) => {
     startTransition(async () => {
-      // First scrape the job URL (supports JobStreet, LinkedIn, and Indeed)
       const scrapeResponse = await fetch("/api/scrape-job", {
         method: "POST",
         headers: {
@@ -61,23 +62,10 @@ export default function AddJobFromUrl() {
       const scrapeResult = await scrapeResponse.json()
 
       if (!scrapeResult.success) {
-        // Enhanced error handling for different platforms
-        if (scrapeResult.platform === "indeed") {
-          toast.error(
-            scrapeResult.error || "Failed to scrape Indeed job page",
-            {
-              description:
-                scrapeResult.suggestion ||
-                "Please try copying the job details manually.",
-              duration: 10000,
-            }
-          )
-        } else {
-          toast.error(scrapeResult.error || "Failed to scrape job data", {
-            description: scrapeResult.suggestion,
-            duration: 6000,
-          })
-        }
+        toast.error(scrapeResult.error || "Failed to scrape job data", {
+          description: scrapeResult.suggestion,
+          duration: 6000,
+        })
         return
       }
 
@@ -106,17 +94,12 @@ export default function AddJobFromUrl() {
         `Job application for "${jobData.position}" at ${jobData.company} has been added successfully!`
       )
       form.reset()
+      router.replace(pathname, { scroll: false }) // Close the modal
     })
   }
 
-  useEffect(() => {
-    if (!isPending) {
-      setOpen(false)
-    }
-  }, [isPending])
-
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <Modal routeName={"add-from-url"}>
       <DialogTrigger asChild>
         <Button variant="outline" size="sm">
           <PlusIcon className="mr-2 h-4 w-4" />
@@ -166,6 +149,6 @@ export default function AddJobFromUrl() {
           </form>
         </Form>
       </DialogContent>
-    </Dialog>
+    </Modal>
   )
 }

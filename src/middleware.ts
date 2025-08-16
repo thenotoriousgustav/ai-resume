@@ -3,11 +3,13 @@ import { NextRequest, NextResponse } from "next/server"
 
 const protectedRoutes = [
   "/dashboard",
-  "/resume-analysis/",
-  "/job-tracker/",
-  "/cover-letter/",
-  "/documents/",
+  "/resume-analysis",
+  "/job-tracker",
+  "/cover-letter",
+  "/documents",
 ]
+
+const authRoutes = ["/auth"]
 
 export const middleware = async (request: NextRequest) => {
   let supabaseResponse = NextResponse.next({
@@ -37,17 +39,23 @@ export const middleware = async (request: NextRequest) => {
     }
   )
 
+  const {
+    data: { session },
+  } = await supabase.auth.getSession()
+
   const pathname = request.nextUrl.pathname
 
-  // Check if the pathname starts with any protected route
-  const isProtectedRoute = protectedRoutes.some(
-    (route) => pathname === route || pathname.startsWith(route)
+  const isProtectedRoute = protectedRoutes.some((route) =>
+    pathname.startsWith(route)
   )
+  const isAuthRoute = authRoutes.some((route) => pathname.startsWith(route))
 
-  const session = await supabase.auth.getUser()
+  if (!session && isProtectedRoute) {
+    return NextResponse.redirect(new URL("/auth", request.url))
+  }
 
-  if (isProtectedRoute && session.error) {
-    return NextResponse.redirect(new URL("/", request.url))
+  if (session && isAuthRoute) {
+    return NextResponse.redirect(new URL("/dashboard", request.url))
   }
 
   return supabaseResponse

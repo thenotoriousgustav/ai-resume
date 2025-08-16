@@ -11,7 +11,6 @@ export default async function DashboardLayout({
   modal,
 }: Readonly<{
   children: React.ReactNode
-
   modal: React.ReactNode
 }>) {
   return (
