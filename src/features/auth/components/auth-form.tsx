@@ -1,7 +1,8 @@
 "use client"
 
 import { zodResolver } from "@hookform/resolvers/zod"
-import React, { startTransition } from "react"
+import { Loader } from "lucide-react"
+import React, { useTransition } from "react"
 import { useForm } from "react-hook-form"
 import { toast } from "sonner"
 import { z } from "zod"
@@ -22,7 +23,6 @@ import { authSchema } from "../schemas/auth-schema"
 import otpAuth from "../server/actions/otp-auth"
 
 import GoogleOAuthButton from "./google-oauth-button"
-
 export default function AuthForm() {
   const form = useForm<z.infer<typeof authSchema>>({
     resolver: zodResolver(authSchema),
@@ -31,6 +31,8 @@ export default function AuthForm() {
     },
     mode: "onBlur",
   })
+
+  const [isPending, startTransition] = useTransition()
 
   async function onSubmit(values: z.infer<typeof authSchema>) {
     startTransition(async () => {
@@ -63,8 +65,18 @@ export default function AuthForm() {
               </FormItem>
             )}
           />
-          <Button type="submit" className="w-full cursor-pointer">
-            Submit
+          <Button
+            type="submit"
+            className="w-full cursor-pointer"
+            disabled={isPending}
+          >
+            {isPending ? (
+              <span className="flex items-center justify-center gap-2">
+                <Loader className="h-4 w-4 animate-spin" /> Loading...
+              </span>
+            ) : (
+              "Submit"
+            )}
           </Button>
         </form>
       </Form>

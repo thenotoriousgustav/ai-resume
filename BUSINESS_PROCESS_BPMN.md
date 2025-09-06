@@ -16,20 +16,20 @@ Proses upload dan validasi dokumen resume dalam format PDF dengan parsing otomat
 
 ```mermaid
 flowchart LR
-    Start([Start]) --> SelectFile[👤 Select PDF File]
+    Start([Start]) --> SelectFile[Select PDF File]
     SelectFile --> ValidateFile{Valid PDF?}
 
-    ValidateFile -->|No| FileError[⚠️ File Error]
+    ValidateFile -->|No| FileError[File Error]
     ValidateFile -->|Yes| UploadFile[📤 Upload to Storage]
 
-    UploadFile --> ParsePDF[🔧 Parse PDF Content]
-    ParsePDF --> ExtractText[📄 Extract Text]
-    ExtractText --> SaveRecord[(💾 Save Resume Record)]
-    SaveRecord --> Success[✅ Upload Success]
+    UploadFile --> ParsePDF[Parse PDF Content]
+    ParsePDF --> ExtractText[Extract Text]
+    ExtractText --> SaveRecord[(Save Resume Record)]
+    SaveRecord --> Success[Upload Success]
     Success --> End([Complete])
 
     FileError --> SelectFile
-    ParsePDF -.->|Parse Failed| ParseError[⚠️ Parse Error]
+    ParsePDF -.->|Parse Failed| ParseError[Parse Error]
     ParseError -.-> SelectFile
 
     %% Styling
@@ -69,27 +69,27 @@ Proses pembuatan cover letter otomatis menggunakan AI berdasarkan data resume da
 ```mermaid
 flowchart LR
     Start([Start]) --> CheckData{Resume & Job Data Exists?}
-    CheckData -->|No| InputData[👤 Input Required Data]
+    CheckData -->|No| InputData[Input Required Data]
     CheckData -->|Yes| CheckPrevious{Previous Cover Letter?}
 
     InputData --> ValidateData{Data Valid?}
     ValidateData -->|No| InputData
     ValidateData -->|Yes| CheckPrevious
 
-    CheckPrevious -->|Yes| ShowPrevious[📋 Show Previous]
-    CheckPrevious -->|No| AIGenerate[🤖 AI Generation]
+    CheckPrevious -->|Yes| ShowPrevious[Show Previous]
+    CheckPrevious -->|No| AIGenerate[AI Generation]
 
     ShowPrevious --> Regenerate{Regenerate?}
     Regenerate -->|Yes| AIGenerate
-    Regenerate -->|No| UserActions[📝 User Actions]
+    Regenerate -->|No| UserActions[User Actions]
 
-    AIGenerate --> FormatLetter[📄 Format Letter]
-    FormatLetter --> SaveDB[(💾 Save to Database)]
+    AIGenerate --> FormatLetter[Format Letter]
+    FormatLetter --> SaveDB[(Save to Database)]
     SaveDB --> UserActions
     UserActions --> End([Complete])
 
     %% Error Handling
-    AIGenerate -.->|Failed| AIError[⚠️ AI Error]
+    AIGenerate -.->|Failed| AIError[AI Error]
     AIError -.-> InputData
 
     %% Styling
@@ -130,26 +130,26 @@ Proses analisis resume yang ditargetkan untuk posisi pekerjaan tertentu mengguna
 
 ```mermaid
 flowchart LR
-    Start([Start]) --> UploadResume[👤 Upload Resume]
-    UploadResume --> InputJob[👤 Input Job Details]
+    Start([Start]) --> UploadResume[Upload Resume]
+    UploadResume --> InputJob[Input Job Details]
     InputJob --> CheckPrevious{Previous Analysis?}
 
-    CheckPrevious -->|Yes| ShowPrevious[📋 Show Previous]
-    CheckPrevious -->|No| AIAnalysis[🤖 AI Analysis]
+    CheckPrevious -->|Yes| ShowPrevious[Show Previous]
+    CheckPrevious -->|No| AIAnalysis[AI Analysis]
 
     ShowPrevious --> Regenerate{Regenerate?}
     Regenerate -->|Yes| AIAnalysis
-    Regenerate -->|No| DisplayResults[📊 Display Results]
+    Regenerate -->|No| DisplayResults[Display Results]
 
-    AIAnalysis --> MatchKeywords[🔍 Match Keywords]
-    MatchKeywords --> CalculateScore[📈 Calculate Score]
-    CalculateScore --> GenerateSuggestions[💡 Generate Suggestions]
-    GenerateSuggestions --> SaveDB[(💾 Save Analysis)]
+    AIAnalysis --> MatchKeywords[Match Keywords]
+    MatchKeywords --> CalculateScore[Calculate Score]
+    CalculateScore --> GenerateSuggestions[Generate Suggestions]
+    GenerateSuggestions --> SaveDB[(Save Analysis)]
     SaveDB --> DisplayResults
     DisplayResults --> End([Complete])
 
     %% Error Handling
-    AIAnalysis -.->|Failed| ErrorMsg[⚠️ Analysis Error]
+    AIAnalysis -.->|Failed| ErrorMsg[Analysis Error]
     ErrorMsg -.-> InputJob
 
     %% Styling
